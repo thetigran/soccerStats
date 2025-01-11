@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player - [Player Name]</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- For Pie Chart -->
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        header, footer {
+            background-color: #1e1e1e;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid #2d2d2d;
+        }
+
+        footer {
+            border-top: 2px solid #2d2d2d;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+       
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #1e1e1e;
+            border-bottom: 2px solid #2d2d2d;
+            padding: 10px 0;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .charts-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .chart-section {
+            flex: 1;
+            min-width: 300px;
+            margin: 10px;
+        }
+
+        .histogram-container {
+            margin-top: 20px;
+        }
+
+        .dropdown-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            background-color: #1e1e1e;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<script>
+    if (localStorage.getItem("authenticated") !== "true") {
+        window.location.href = "entry.html"; // Redirect to entry.html if not authenticated
+    }
+</script>
+<body>
+    <header>
+        <h1>Soccer League</h1>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="players.html">Players</a>
+        <a href="stats.html">Stats</a>
+    </nav>
+
+    <main id="player-main" style="display: flex; flex-direction: column; align-items: center; padding: 20px;">
+        <!-- Player Info -->
+        <div class="player-info" style="text-align: center;">
+            <img src="" alt="Player Image" id="player-img" style="width: 150px; height: 150px; border-radius: 50%;">
+            <h2 id="player-name">Player Name</h2>
+            <p id="player-position">Posición preferida: Defensa</p>
+            <p id="most-repeated-position"></p> <!-- Display most repeated position -->
+        </div>
+
+        <!-- Player Stats -->
+        <div class="stats-section" style="text-align: center; margin-top: 20px;">
+            <h2>Player Stats</h2>
+            <p id="total-mvp">Puntos MVP: 0</p>
+            <p id="total-fouls">Fouls: 0</p>
+
+
+        <!-- Pie Chart <div class="pie-chart-container" style="width: 200px; height: 200px; margin-bottom: 20px;">-->
+      
+        <div class="charts-container">
+            <div class="chart-section">
+                <canvas id="victory-chart"></canvas>
+            </div>
+            <div class="chart-section">
+                <canvas id="radar-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="histogram-container">
+            <div class="dropdown-container">
+                <label for="stat-dropdown">Select Stat for Histogram:</label>
+                <select id="stat-dropdown">
+                    <option value="0">Goals</option>
+                    <option value="1">Assists</option>
+                    <option value="2">Stops</option>
+                    <option value="3">Penalties Saved</option>
+                </select>
+            </div>
+            <canvas id="stat-histogram"></canvas>
+        </div>
+        <!-- Últimos resultados -->
+
+        <!-- Partidos jugados en Player Stats, Jugadores con los que más gana-->
+
+        </div>
+    </main>
+
+
+   <!-- <div id="charts-container" style="display: flex; justify-content: space-between; padding: 20px; flex-wrap: wrap;">
+       
+         Histogram 
+        <div class="histogram-container" style="width: 550px; height: 500px; margin-bottom: 20px;">
+            <canvas id="stat-histogram"></canvas>
+        </div> -->
+
+         <!-- Radar Chart (Position chart) 
+         <div class="radar-chart-container" style="width: 300px; height: 300px; margin-bottom: 20px;">
+            <canvas id="position-chart"></canvas>
+        </div> -->
+
+    <footer>
+        <p>&copy; 2025 Soccer League | All Rights Reserved</p>
+    </footer>
+
+    <script>
+        const baseId = 'app9PTtjDQsuwHyIz'; // Replace with your base ID
+        const apiKey = 'patp3kkpRn8eGNX3y.db99d2833bad3cfb3ed32a4377304090f84839a464e55ffc8b1333a01cb5fdf3'; // Replace with your API key
+        const tableName = 'Table 1'; // Replace with your table name
+        const endpoint = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+    
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = urlParams.get('playerName'); // Get the playerName from the URL
+    
+        let victoryChart = null;
+        let histogramChart = null;
+        let radarChart = null;
+    
+        fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const records = data.records;
+    
+                // Find the player with the matching name
+                const player = records.find(record => record.fields.Jugador === playerName);
+    
+                if (player) {
+                    const playerPosition = player.fields.Posicion || 'Defensa'; // Default example position
+                    const playerImage = player.fields.ImageURL || 'https://via.placeholder.com/150';
+    
+
+                // Set player details
+                document.getElementById('player-name').innerText = playerName;
+                document.getElementById('player-position').innerText = `Position: ${playerPosition}`;
+                document.getElementById('player-img').src = playerImage;
+
+                // Calculate stats
+                let totalMVP = 0;
+                let totalFouls = 0;
+                let totalMatchesPlayed = 0;
+                let totalMatchesWon = 0;
+
+                // Stats for histogram
+                const statsHistory = [];
+                const statsFields = ['Goles', 'Asistencias', 'Paradas', 'Penaltis Parados'];
+                const positionsHistory = []; // To track all positions
+
+                records.forEach(record => {
+                    if (record.fields.Jugador === playerName) {
+                        totalMVP += parseInt(record.fields['MVP'] || 0, 10);
+                        totalFouls += parseInt(record.fields['Faltas provocadas'] || 0, 10);
+                        if (record.fields.Juega === 'S') totalMatchesPlayed++;
+                        if (parseInt(record.fields['Partido Ganado'], 10) === 1) totalMatchesWon++;
+
+                        // Collect stats per week
+                        const weekStats = {
+                            week: record.fields['Semana'], // Assuming 'Semana' is the week field
+                            goals: parseInt(record.fields.Goles || 0, 10),
+                            assists: parseInt(record.fields.Asistencias || 0, 10),
+                            stops: parseInt(record.fields.Paradas || 0, 10),
+                            penalties: parseInt(record.fields['Penaltis parados'] || 0, 10),
+                            position: record.fields.Posicion || 'Defensa', // Record the player's position each week
+                        };
+                        statsHistory.push(weekStats);
+                        positionsHistory.push(weekStats.position);
+                    }
+                });
+
+                // Calculate most frequent position
+                const positionFrequency = positionsHistory.reduce((acc, position) => {
+                    acc[position] = (acc[position] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const mostRepeatedPosition = Object.keys(positionFrequency).reduce((a, b) => 
+                    positionFrequency[a] > positionFrequency[b] ? a : b
+                );
+                document.getElementById('most-repeated-position').innerText = `Posicion Preferida: ${mostRepeatedPosition}`;
+
+                // Set player stats
+                document.getElementById('total-mvp').innerText = `Puntos MVP: ${totalMVP}`;
+                document.getElementById('total-fouls').innerText = `Fouls: ${totalFouls}`;
+
+                // Create Pie Chart for victories with adjusted size and color
+                const victoryData = {
+                    labels: ['Victories', 'Losses'],
+                    datasets: [{
+                        data: [totalMatchesWon, totalMatchesPlayed - totalMatchesWon],
+                        backgroundColor: ['#1abc9c', '#e74c3c'] // Dark tones palette
+                    }]
+                };
+
+                const ctxVictory = document.getElementById('victory-chart').getContext('2d');
+
+                if (victoryChart) {
+                    victoryChart.destroy(); // Destroy the previous chart
+                }
+
+                victoryChart = new Chart(ctxVictory, {
+                    type: 'pie',
+                    data: victoryData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                        },
+                    },
+                });
+
+                // Create Line Chart for player stats
+                const ctxHistogram = document.getElementById('stat-histogram').getContext('2d');
+
+                // Data for the line chart
+                const statData = [[], [], [], []]; // Data for goals, assists, stops, and penalties
+
+                statsHistory.forEach(week => {
+                    statData[0].push(week.goals);
+                    statData[1].push(week.assists);
+                    statData[2].push(week.stops);
+                    statData[3].push(week.penalties);
+                });
+
+                // Update histogram when dropdown changes
+                const updateHistogram = (statIndex) => {
+                    const data = statData[statIndex];
+                    const chartData = {
+                        labels: statsHistory.map(week => `Week ${week.week}`),
+                        datasets: [{
+                            label: statsFields[statIndex],
+                            data: data,
+                            fill: false,
+                            borderColor: '#1abc9c', // Dark tone
+                            tension: 0.1,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#34495e',
+                        }]
+                    };
+
+                    if (histogramChart) {
+                        histogramChart.destroy(); // Destroy the previous chart
+                    }
+
+                    histogramChart = new Chart(ctxHistogram, {
+                        type: 'line',
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Weeks',
+                                    },
+                                    ticks: {
+                                        autoSkip: true,
+                                        maxTicksLimit: 10,
+                                    },
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                }
+                            }
+                        },
+                    });
+                };
+
+                // Initialize the histogram with goals
+                updateHistogram(0);
+
+                // Change histogram on dropdown selection
+                document.getElementById('stat-dropdown').addEventListener('change', (event) => {
+                    updateHistogram(event.target.value);
+                });
+
+                // Extract and normalize stats for radar chart
+                const goals = parseInt(player.fields['Goles'] || 0, 10);
+                const assists = parseInt(player.fields['Asistencias'] || 0, 10);
+                const stops = parseInt(player.fields['Paradas'] || 0, 10);
+                const penaltiesSaved = parseInt(player.fields['Penaltis Parados'] || 0, 10);
+                const foulsMade = parseInt(player.fields['Faltas provocadas'] || 0, 10);
+
+                const attack = normalize(goals + assists, 0, 50);
+                const defense = normalize(stops + penaltiesSaved, 0, 50);
+                const fairPlay = normalize(50 - foulsMade, 0, 50);
+
+                // Calculate overall score
+                const overallScore = calculateOverallScore([attack, defense, fairPlay]);
+                displayOverallScore(overallScore);
+
+                // Initialize Radar Chart
+                const radarCtx = document.getElementById('radar-chart').getContext('2d');
+                radarChart = new Chart(radarCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Ataque', 'Defensa', 'Fair Play'],
+                        datasets: [{
+                            label: 'Player Performance',
+                            data: [attack, defense, fairPlay],
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            r: {
+                                ticks: {
+                                    color: '#ffffff',
+                                    backdropColor: '#121212',
+                                },
+                                grid: {
+                                    color: '#2d2d2d',
+                                },
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff',
+                                }
+                            }
+                        }
+                    }
+                });
+
+                } else {
+                    alert('Player not found');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching Airtable data:', error);
+            });
+    
+        // Function to normalize values (0-10 scale)
+        function normalize(value, min, max) {
+            return Math.max(0, Math.min(10, ((value - min) / (max - min)) * 10));
+        }
+    
+        // Function to calculate overall score (0-100 scale)
+        function calculateOverallScore(dimensions) {
+            const totalScore = dimensions.reduce((sum, dim) => sum + dim, 0);
+            return Math.round((totalScore / (dimensions.length * 10)) * 100);
+        }
+    
+        // Function to display overall score
+        function displayOverallScore(score) {
+            const scoreContainer = document.createElement('div');
+            scoreContainer.className = 'overall-score';
+            scoreContainer.style.textAlign = 'center';
+            scoreContainer.style.marginTop = '20px';
+            scoreContainer.innerHTML = `<h3>Puntuación: <span style="color: #3b82f6;">${score}/100</span></h3>`;
+            document.getElementById('player-main').appendChild(scoreContainer);
+        }
+    </script>
+</body>

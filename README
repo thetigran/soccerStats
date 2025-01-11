@@ -1,0 +1,175 @@
+Soccer League App
+
+Overview
+
+The Soccer League App is a web-based application that allows a group of people to organize and track their football matches. The app integrates with Airtable to manage and display player stats, match results, and individual player profiles. Key features include a leaderboard for top players, detailed match results, and interactive player profiles.
+
+Features
+
+1. Home Page (index.html)
+
+Purpose: The main landing page for the app.
+
+Content:
+
+Displays upcoming matches.
+
+Highlights recent match results, including the score and the players who won or lost.
+
+Provides navigation links to other pages.
+
+2. Players Page (players.html)
+
+Purpose: Displays a list of all players.
+
+Content:
+
+Lists all registered players with their names and stats.
+
+Provides clickable links for each player to view their detailed profile in player.html.
+
+3. Player Profile Page (player.html)
+
+Purpose: Displays detailed information about an individual player.
+
+Content:
+
+Player's name, position, and profile picture.
+
+Detailed stats such as goals scored, assists, fouls, and MVP points.
+
+Interactive charts:
+
+Pie chart for match victories.
+
+Radar chart showing player attributes (Attack, Defense, Fair Play).
+
+Line histogram displaying weekly performance.
+
+4. Stats Page (stats.html)
+
+Purpose: Displays overall stats for all players.
+
+Content:
+
+A sortable table of player stats.
+
+A "Top Players" section highlighting the top 5 players based on goals.
+
+Navigation link to view full stats.
+
+Technologies Used
+
+Frontend
+
+HTML: Structuring content across the pages.
+
+CSS: Styling for a modern and user-friendly design.
+
+JavaScript:
+
+Fetches data from Airtable.
+
+Dynamically updates the UI (e.g., tables, charts, and interactive elements).
+
+Includes features like sortable tables and chart updates.
+
+Backend Integration
+
+Airtable API: Used to store and retrieve data about players, matches, and stats.
+
+Data Structure
+
+Airtable Table 1: Players
+
+Columns:
+
+Jugador: Player's name.
+
+Goles: Total goals scored.
+
+Asistencias: Total assists.
+
+Paradas: Total stops.
+
+Penaltis Parados: Penalties saved.
+
+Faltas Cometidas: Fouls made.
+
+Partido Ganado: 1 if the player won the match, 0 otherwise.
+
+Semana: Match week.
+
+ImageURL: URL for the player's profile picture.
+
+MVP: Points for being among the top 3 players in a match.
+
+Airtable Table 2: Matches
+
+Columns:
+
+Nombre: Match name (e.g., Team A vs Team B).
+
+Fecha: Match date.
+
+Resultado: Match result (e.g., 5-3).
+
+Jugadores: List of players who participated.
+
+Semana: Match week.
+
+Charts and Visualizations
+
+1. Radar Chart
+
+Purpose: Visualizes player attributes.
+
+Dimensions:
+
+Attack: Calculated as Goals + Assists.
+
+Defense: Calculated as Stops + Penalties Saved.
+
+Fair Play: Calculated inversely based on fouls made.
+
+Data Normalization: All dimensions are normalized to a 0-10 scale.
+
+2. Pie Chart
+
+Purpose: Displays the proportion of matches won vs. lost.
+
+3. Line Histogram
+
+Purpose: Shows weekly performance for various stats (e.g., goals, assists).
+
+Interactivity: Allows users to select the stat displayed via a dropdown menu.
+
+Installation and Usage
+
+Prerequisites
+
+Airtable account with appropriate data in two tables (Players and Matches).
+
+Airtable API key and base ID.
+
+Steps to Set Up
+
+Clone the project or copy the HTML files (index.html, players.html, player.html, stats.html).
+
+Host the files on a web server or locally (e.g., GitHub Pages, Apache, or VS Code Live Server).
+
+Update the API key and base ID in the JavaScript sections of the HTML files.
+
+Ensure the Airtable tables are structured as described in the Data Structure section.
+
+Future Improvements
+
+Authentication: Allow users to log in and track personal performance.
+
+Match Scheduling: Add a feature to schedule upcoming matches.
+
+Mobile Optimization: Ensure full responsiveness for all screen sizes.
+
+Advanced Stats: Include additional metrics like pass accuracy or average match ratings.
+
+Export Data: Enable exporting stats to CSV or PDF.

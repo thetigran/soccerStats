@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entry Page</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #1e1e2f;
+      font-family: Arial, sans-serif;
+      color: #fff;
+    }
+    .container {
+      text-align: center;
+    }
+    .input-box {
+      margin-top: 20px;
+    }
+    input[type="password"] {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #ff5722;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e64a19;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Enter the Secret Word</h1>
+    <div class="input-box">
+      <input type="password" id="secret-word" placeholder="Enter the word" />
+      <button onclick="validateWord()">Submit</button>
+    </div>
+    <p id="error-message" style="color: red; display: none;">Incorrect word. Try again.</p>
+  </div>
+
+  <script>
+
+    async function validateWord() {
+    const input = document.getElementById("secret-word").value.trim();
+
+    // Function to hash the input using SHA-256
+    async function hashInput(input) {
+    const hashBuffer = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(input)
+    );
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    const hashHex = await hashInput(input);
+
+    // Debugging logs
+    console.log("Input word:", input);
+    console.log("Hashed value:", hashHex);
+
+    const correctHash = "9683ef57308368c99266b6e377c5ff87da1736674d20e6f3d91d2376e83b440b"; // "pachanga"
+        
+    if (hashHex === correctHash) {
+        localStorage.setItem("authenticated", "true"); // Set the flag
+        window.location.href = `index.html`;
+    } else {
+        document.getElementById("error-message").style.display = "block";
+    }
+    }
+
+  </script>
+</body>
+</html>

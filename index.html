@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer League</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        header {
+            background-color: #1e1e1e;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #2d2d2d;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #1e1e1e;
+            border-bottom: 2px solid #2d2d2d;
+            padding: 10px 0;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .upcoming-match {
+            background-color: #e0f7fa;
+            color: #00796b;
+            border-left: 4px solid #00796b;
+            padding: 10px;
+            font-size: 14px;
+            margin: 20px auto;
+            width: 80%;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .section {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .top-players h2 {
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .top-players {
+            padding-bottom: 15px;
+            text-align: center;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #2d2d2d;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .see-more {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .see-more a {
+            display: inline-block;
+            background-color: #3b82f6;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .see-more a:hover {
+            background-color: #2563eb;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-top: 2px solid #2d2d2d;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+                
+        /* Container for the match */
+        .match-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #e0f7fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            padding: 10px;
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .match-teams {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .match-score {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            margin: 0 20px;
+            flex-shrink: 0;
+        }
+
+        .score {
+            font-size: 32px;
+            color: #007BFF;
+        }
+
+        .match-date {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .match-players {
+            font-size: 14px;
+            margin-bottom: 4px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Container for winners and losers */
+        .result-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        /* Styling for winners and losers sections */
+        .winners{
+            width: 45%;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #000000;
+            background-color: #28a745;
+            padding: 5px 10px;
+            border-radius: 5px;
+            flex: 1;
+        }
+
+        .losers {
+            width: 45%;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #000000;
+            background-color: #dc3545;
+            padding: 5px 10px;
+            border-radius: 5px;
+            flex: 1;
+        }
+
+        /* List styling for players */
+        .players-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .player-item {
+            font-size: 14px;
+            margin: 4px 0;
+        }
+
+        .player-item span {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+
+    </style>
+    <script>
+        if (localStorage.getItem("authenticated") !== "true") {
+            window.location.href = "entry.html"; // Redirect to entry.html if not authenticated
+        }
+    </script>    
+    <script>
+        async function fetchTopPlayers() {
+            const airtableApiKey = 'patp3kkpRn8eGNX3y.db99d2833bad3cfb3ed32a4377304090f84839a464e55ffc8b1333a01cb5fdf3';
+            const airtableBaseId = 'app9PTtjDQsuwHyIz';
+            const tableName = 'Table 1';
+
+            const url = `https://api.airtable.com/v0/${airtableBaseId}/${tableName}?sort[0][field]=Goles&sort[0][direction]=desc&maxRecords=5`;
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        Authorization: `Bearer ${airtableApiKey}`
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to fetch data');
+                    return;
+                }
+
+                const data = await response.json();
+                const tableBody = document.querySelector('#top-players-body');
+
+
+                const addedPlayers = new Set(); // To track added players
+                let rank = 1; // To keep track of the player's rank
+
+
+                data.records.forEach((player) => {
+                const playerName = player.fields.Jugador;
+
+                // Skip this player if they are already added
+                if (addedPlayers.has(playerName)) {
+                    return;
+                }
+
+                // Add the player to the table
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${rank}</td>
+                    <td>${playerName}</td>
+                    <td>${player.fields.Goles}</td>
+                    <td>${player.fields.Asistencias || 0}</td>
+                `;
+                tableBody.appendChild(row);
+
+                // Add the player to the registry and increment rank
+                addedPlayers.add(playerName);
+                rank++;
+
+                // Stop after adding 5 players
+                if (rank > 5) {
+                    return;
+                }
+                });
+
+                // Add "See More" button
+                const seeMore = document.createElement('div');
+                seeMore.className = 'see-more';
+                seeMore.innerHTML = '<a href="stats.html">See Full Stats</a>';
+                document.querySelector('.top-players').appendChild(seeMore);
+            } catch (error) {
+                console.error('Error fetching or processing data:', error);
+            }
+        }
+
+
+        async function fetchMatches() {
+        const airtableApiKey = 'patp3kkpRn8eGNX3y.db99d2833bad3cfb3ed32a4377304090f84839a464e55ffc8b1333a01cb5fdf3';
+        const airtableBaseId = 'app9PTtjDQsuwHyIz';
+        const matchesTableName = 'Table 2';
+        const playersTableName = 'Table 1';
+        const currentYear = new Date().getFullYear();
+    
+        const matchesUrl = `https://api.airtable.com/v0/${airtableBaseId}/${matchesTableName}`;
+        const playersUrl = `https://api.airtable.com/v0/${airtableBaseId}/${playersTableName}`;
+
+        try {
+            const [matchesResponse, playersResponse] = await Promise.all([
+                fetch(matchesUrl, {
+                    headers: {
+                        Authorization: `Bearer ${airtableApiKey}`
+                    }
+                }),
+                fetch(playersUrl, {
+                    headers: {
+                        Authorization: `Bearer ${airtableApiKey}`
+                    }
+                })
+            ]);
+
+            if (!matchesResponse.ok || !playersResponse.ok) {
+                console.error('Failed to fetch matches or players');
+                return;
+            }
+
+            const matchesData = await matchesResponse.json();
+            const playersData = await playersResponse.json();
+
+            const playersMap = playersData.records.reduce((map, record) => {
+                map[record.id] = record.fields.Jugador; // Map player IDs to names
+                return map;
+            }, {});
+
+            const today = new Date();
+
+            function parseCustomDate(fecha) {
+                const [day, month] = fecha.split('/').map(Number);
+                return new Date(today.getFullYear(), month - 1, day); // Use current year
+            }
+
+            const upcomingMatches = [];
+            const pastMatches = [];
+
+            matchesData.records.forEach((match) => {
+                if (!match.fields.Fecha) return; // Skip records without a date
+                const matchDate = parseCustomDate(match.fields.Fecha);
+                if (matchDate >= today) {
+                    upcomingMatches.push({ ...match, date: matchDate });
+                } else {
+                    pastMatches.push({ ...match, date: matchDate });
+                }
+            });
+
+            const upcomingContainer = document.querySelector('#upcoming-matches');
+            const pastContainer = document.querySelector('#past-matches');
+
+            // Display upcoming matches
+            upcomingMatches.forEach((match) => {
+                const div = document.createElement('div');
+                div.className = 'upcoming-match';
+
+                div.innerHTML = `
+                    <p><strong>${match.fields.Nombre}</strong></p>
+                    <p>Date: ${match.date.toLocaleDateString()}</p>
+                    <p>Players: ${(match.fields.Jugadores || [])
+                        .map((id) => playersMap[id] || 'Unknown')
+                        .join(', ')}</p>
+                `;
+
+                upcomingContainer.appendChild(div);
+            });
+
+            // Display last 3 past matches
+            const pastMatchesToShow = pastMatches.slice(-3).reverse(); // Last 3 matches
+
+            if (pastMatchesToShow.length === 0) {
+                pastContainer.innerHTML = `<p>No past matches available.</p>`;
+            } else {
+                    for (const match of pastMatches) {
+
+                        const { Nombre, Resultado, Jugadores } = match.fields;
+                        const [scoreA, scoreB] = Resultado.split('-');
+
+                        // Create a container for the match
+                        const matchContainer = document.createElement('div');
+                        matchContainer.className = 'match-container';
+
+                        // Add team names
+                        const date = document.createElement('p');
+                        date.className = 'match-teams';
+                        date.textContent = match.fields.Fecha;
+                        matchContainer.appendChild(date);
+
+                        // Add match score
+                        const score = document.createElement('p');
+                        score.className = 'match-score';
+                        score.innerHTML = `<span class="score">${scoreA}</span> - <span class="score">${scoreB}</span>`;
+                        //matchContainer.appendChild(score);
+
+                        // Add match date
+                        const teams = document.createElement('p');
+                        teams.className = 'match-date';
+                        teams.textContent = `${Nombre}`;
+                        matchContainer.appendChild(teams);
+
+                        // Add players section
+                        const playersSection = document.createElement('p');
+                        playersSection.className = 'match-players';
+                        playersSection.textContent = 'Players:';
+
+                        const playersList = document.createElement('ul');
+                        playersList.className = 'players-list';
+
+                        // Add containers for winners and losers
+                        const resultContainer = document.createElement('div');
+                        resultContainer.className = 'result-container';
+
+                        const winnersContainer = document.createElement('div');
+                        winnersContainer.className = 'winners';
+                        winnersContainer.innerHTML = `
+                            <ul class="players-list" id="winners-list-${match.id}"></ul>
+                        `;
+
+                        const losersContainer = document.createElement('div');
+                        losersContainer.className = 'losers';
+                        losersContainer.innerHTML = `
+                            <ul class="players-list" id="losers-list-${match.id}"></ul>
+                        `;
+
+                        // Append winners and losers containers to the result container
+                        resultContainer.appendChild(winnersContainer);
+                        resultContainer.appendChild(score);
+                        resultContainer.appendChild(losersContainer);
+
+                        // Add the result container to the match container
+                        matchContainer.appendChild(resultContainer);
+
+                        // Add players to the correct side (winners or losers)
+                        const winnersList = resultContainer.querySelector(`#winners-list-${match.id}`);
+                        const losersList = resultContainer.querySelector(`#losers-list-${match.id}`);
+
+                        for (const playerId of Jugadores) {
+                            const playerRecord = playersData.records.find((record) => record.id === playerId);
+
+                            if (playerRecord) {
+                                const playerName = playerRecord.fields.Jugador;
+                                const partidoGanado = parseInt(playerRecord.fields['Partido Ganado'] || 0, 10); // Default to 0 if undefined
+                                const playerSemana = playerRecord.fields.Semana;
+
+                                // Check if the player's "Semana" matches the match's "Semana" and determine win/loss
+                                const won = playerSemana === match.fields.Semana && partidoGanado === 1;
+
+                                                        
+                                const playerItem = document.createElement('li');
+                                playerItem.className = `player-item ${won ? 'won' : 'lost'}`;
+                                playerItem.textContent = playerName;
+
+
+                                if (won) {
+                                    winnersList.appendChild(playerItem);
+                                } else {
+                                    losersList.appendChild(playerItem);
+                                }
+                            }
+                        }
+
+
+                       // matchContainer.appendChild(playersSection);
+                       // matchContainer.appendChild(winnersList);
+                       // matchContainer.appendChild(losersList);
+
+                        // Add spacing
+                        const spacing = document.createElement('p');
+                        spacing.innerHTML = '&nbsp;';
+                        matchContainer.appendChild(spacing);
+
+                        pastContainer.appendChild(matchContainer);
+                    }
+                }} catch (error) {
+                    console.error('Error fetching or processing matches:', error);
+                }
+        }
+
+    window.onload = () => {
+        fetchTopPlayers();
+        fetchMatches();
+    };
+</script>
+</head>
+<body>
+    <header>
+        <h1>Soccer League</h1>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="players.html">Players</a>
+        <a href="stats.html">Stats</a>
+    </nav>
+
+    <main>
+        <div class="section">
+            <h2>Upcoming Matches</h2>
+            <div id="upcoming-matches">
+                <!-- Matches will be dynamically added here -->
+            </div>
+        </div>
+
+        <div class="top-players">
+            <h2>Top Goleadores</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Goals</th>
+                        <th>Assists</th>
+                    </tr>
+                </thead>
+                <tbody id="top-players-body">
+                    <!-- Rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Last Results</h2>
+            <div id="past-matches" class="matches-container">
+                <!-- Last matches will be dynamically added here -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Soccer League | All Rights Reserved</p>
+    </footer>
+</body>
+</html>
+
+
