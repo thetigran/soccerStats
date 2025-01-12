@@ -48,10 +48,19 @@
             padding: 20px;
         }
 
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+            max-width: 100%; /* Ensure it doesn't exceed the screen width */
+            border: 1px solid #2d2d2d; /* Add a border around the scrollable area */
+            border-radius: 8px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            margin: 0; /* Ensure it aligns with the container */
+            overflow: hidden; /* Prevent elements from spilling out */
         }
 
         table th, table td {
@@ -61,11 +70,26 @@
         }
 
         table th {
-            background-color: #3b82f6;
+            background-color: #154c79;
             color: #ffffff;
             cursor: pointer;
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
+        
+        table th.sticky, table td.sticky {
+            position: sticky;
+            left: 0; /* Stick the first column when scrolling horizontally */
+            background-color: #154c79; /* Keep a consistent color */
+            z-index: 2;
+        }
+
+        table td.sticky {
+            background-color: #1e1e1e; /* Match the row background color */
+            z-index: 1;
+        }
+
 
         table th .sort-arrow {
             font-size: 12px;
@@ -94,7 +118,7 @@
         }
 
         table td a:hover {
-            color: #3b82f6; /* Add a subtle hover effect with blue */
+            color: #063970; /* Add a subtle hover effect with blue */
             text-decoration: underline; /* Optional: Add underline on hover */
         }
 
@@ -125,7 +149,7 @@
             font-size: 12px;
             font-weight: bold;
             color: #fff;
-            background-color: #3b82f6;
+            background-color: #154c79;
             border-radius: 50%;
             cursor: pointer;
             opacity: 0.8;
@@ -171,22 +195,22 @@
 </script>
 <body>
     <header>
-        <h1>Soccer League</h1>
+        <h1>Liga Pachanga</h1>
     </header>
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="players.html">Players</a>
-        <a href="stats.html">Stats</a>
+        <a href="index.html">Inicio</a>
+        <a href="players.html">Jugadores</a>
+        <a href="stats.html">Estadísticas</a>
     </nav>
 
     <main>
-        <h2>Player Statistics</h2>
+        <div class="table-container">
         <table id="statsTable">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th data-column="jugador">Jugador<span class="sort-arrow">▲</span></th>
+                    <th class="sticky">#</th>
+                    <th class="sticky" data-column="jugador">Jugador<span class="sort-arrow">▲</span></th>
                     <th data-column="partidosJugados">Partidos Jugados<span class="sort-arrow"></span></th>
                     <th data-column="partidosGanados">Partidos Ganados<span class="sort-arrow"></span></th>
                     <th data-column="puntosMVP">
@@ -210,8 +234,8 @@
                 <!-- Data will be injected here -->
             </tbody>
         </table>
-
-
+         </div>
+    
         <script>
             const baseId = 'app9PTtjDQsuwHyIz'; // Replace with your base ID
             const apiKey = 'patp3kkpRn8eGNX3y.db99d2833bad3cfb3ed32a4377304090f84839a464e55ffc8b1333a01cb5fdf3'; // Replace with your API key
@@ -277,8 +301,8 @@
                     const tr = document.createElement('tr');
         
                     tr.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td><a href="player.html?playerName=${encodeURIComponent(stats.jugador)}">${stats.jugador}</a></td>
+                        <td class="sticky">${index + 1}</td>
+                        <td class="sticky"><a href="player.html?playerName=${encodeURIComponent(stats.jugador)}">${stats.jugador}</a></td>
                         <td>${stats.partidosJugados}</td>
                         <td>${stats.partidosGanados}</td>
                         <td>${stats.puntosMVP}</td>
@@ -327,7 +351,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Soccer League | All Rights Reserved</p>
+        <p>&copy; All Rights Reserved</p>
     </footer>
 </body>
 </html>

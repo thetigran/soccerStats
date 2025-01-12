@@ -76,6 +76,14 @@
             padding: 10px;
             border-radius: 8px;
         }
+        
+        #player-img {
+            width: 250px; /* Adjust to desired width */
+            height: 400px; /* Adjust to desired height, maintaining a good aspect ratio */
+            object-fit: cover;
+            object-position: 50% 40%; /* This ensures the image is centered if it gets cropped */
+        }
+
     </style>
 </head>
 <script>
@@ -85,29 +93,29 @@
 </script>
 <body>
     <header>
-        <h1>Soccer League</h1>
+        <h1>Liga Pachanga</h1>
     </header>
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="players.html">Players</a>
-        <a href="stats.html">Stats</a>
+        <a href="index.html">Inicio</a>
+        <a href="players.html">Jugadores</a>
+        <a href="stats.html">Estadísticas</a>
     </nav>
 
     <main id="player-main" style="display: flex; flex-direction: column; align-items: center; padding: 20px;">
         <!-- Player Info -->
         <div class="player-info" style="text-align: center;">
-            <img src="" alt="Player Image" id="player-img" style="width: 150px; height: 150px; border-radius: 50%;">
-            <h2 id="player-name">Player Name</h2>
+            <img src="" alt="Player Image" id="player-img" style="width: 250px; height: 250px; border-radius: 50%;">
+            <h2 id="player-name">Nombre</h2>
             <p id="player-position">Posición preferida: Defensa</p>
             <p id="most-repeated-position"></p> <!-- Display most repeated position -->
         </div>
 
         <!-- Player Stats -->
         <div class="stats-section" style="text-align: center; margin-top: 20px;">
-            <h2>Player Stats</h2>
+            <h2>Estadísticas</h2>
             <p id="total-mvp">Puntos MVP: 0</p>
-            <p id="total-fouls">Fouls: 0</p>
+            <p id="total-fouls">Faltas: 0</p>
 
 
         <!-- Pie Chart <div class="pie-chart-container" style="width: 200px; height: 200px; margin-bottom: 20px;">-->
@@ -123,12 +131,12 @@
 
         <div class="histogram-container">
             <div class="dropdown-container">
-                <label for="stat-dropdown">Select Stat for Histogram:</label>
+                <label for="stat-dropdown">Selecciona:</label>
                 <select id="stat-dropdown">
-                    <option value="0">Goals</option>
-                    <option value="1">Assists</option>
-                    <option value="2">Stops</option>
-                    <option value="3">Penalties Saved</option>
+                    <option value="0">Goles</option>
+                    <option value="1">Asistencias</option>
+                    <option value="2">Penalties Parados</option>
+                    <option value="3">Faltas provocadas</option>
                 </select>
             </div>
             <canvas id="stat-histogram"></canvas>
@@ -154,7 +162,7 @@
         </div> -->
 
     <footer>
-        <p>&copy; 2025 Soccer League | All Rights Reserved</p>
+        <p>&copy; All Rights Reserved</p>
     </footer>
 
     <script>
@@ -162,6 +170,8 @@
         const apiKey = 'patp3kkpRn8eGNX3y.db99d2833bad3cfb3ed32a4377304090f84839a464e55ffc8b1333a01cb5fdf3'; // Replace with your API key
         const tableName = 'Table 1'; // Replace with your table name
         const endpoint = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+        const imagesTableName = 'Images'; // Name of the table with images
+        const imagesEndpoint = `https://api.airtable.com/v0/${baseId}/${imagesTableName}`;
     
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = urlParams.get('playerName'); // Get the playerName from the URL
@@ -185,13 +195,23 @@
     
                 if (player) {
                     const playerPosition = player.fields.Posicion || 'Defensa'; // Default example position
-                    const playerImage = player.fields.ImageURL || 'https://via.placeholder.com/150';
-    
+                            
+                    // Fetch the player's image from the Images table
+                    fetch(imagesEndpoint + `?filterByFormula={Nombre}='${playerName}'`, {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${apiKey}`,
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(imageData => {
+                            const imageRecord = imageData.records[0]; // Get the first matching record
+                            const playerImage = imageRecord && imageRecord.fields.Imagen ? imageRecord.fields.Imagen[0].url : 'https://via.placeholder.com/150';
 
-                // Set player details
-                document.getElementById('player-name').innerText = playerName;
-                document.getElementById('player-position').innerText = `Position: ${playerPosition}`;
-                document.getElementById('player-img').src = playerImage;
+                            // Set player details
+                            document.getElementById('player-name').innerText = playerName;
+                            document.getElementById('player-position').innerText = `Position: ${playerPosition}`;
+                            document.getElementById('player-img').src = playerImage;
 
                 // Calculate stats
                 let totalMVP = 0;
@@ -201,7 +221,7 @@
 
                 // Stats for histogram
                 const statsHistory = [];
-                const statsFields = ['Goles', 'Asistencias', 'Paradas', 'Penaltis Parados'];
+                const statsFields = ['Goles', 'Asistencias', 'Penaltis parados', 'Faltas provocadas'];
                 const positionsHistory = []; // To track all positions
 
                 records.forEach(record => {
@@ -216,8 +236,9 @@
                             week: record.fields['Semana'], // Assuming 'Semana' is the week field
                             goals: parseInt(record.fields.Goles || 0, 10),
                             assists: parseInt(record.fields.Asistencias || 0, 10),
-                            stops: parseInt(record.fields.Paradas || 0, 10),
+                            penaltiesProvocados: parseInt(record.fields['Penaltis provocados'] || 0, 10),
                             penalties: parseInt(record.fields['Penaltis parados'] || 0, 10),
+                            fouls: parseInt(record.fields['Faltas provocadas'] || 0, 10),
                             position: record.fields.Posicion || 'Defensa', // Record the player's position each week
                         };
                         statsHistory.push(weekStats);
@@ -238,11 +259,11 @@
 
                 // Set player stats
                 document.getElementById('total-mvp').innerText = `Puntos MVP: ${totalMVP}`;
-                document.getElementById('total-fouls').innerText = `Fouls: ${totalFouls}`;
+                document.getElementById('total-fouls').innerText = `Faltas: ${totalFouls}`;
 
                 // Create Pie Chart for victories with adjusted size and color
                 const victoryData = {
-                    labels: ['Victories', 'Losses'],
+                    labels: ['Victorias', 'Derrotas'],
                     datasets: [{
                         data: [totalMatchesWon, totalMatchesPlayed - totalMatchesWon],
                         backgroundColor: ['#1abc9c', '#e74c3c'] // Dark tones palette
@@ -273,13 +294,13 @@
                 const ctxHistogram = document.getElementById('stat-histogram').getContext('2d');
 
                 // Data for the line chart
-                const statData = [[], [], [], []]; // Data for goals, assists, stops, and penalties
+                const statData = [[], [], [], []]; // Data for goals, assists and penalties
 
                 statsHistory.forEach(week => {
                     statData[0].push(week.goals);
                     statData[1].push(week.assists);
-                    statData[2].push(week.stops);
-                    statData[3].push(week.penalties);
+                    statData[2].push(week.penalties);
+                    statData[3].push(week.fouls);
                 });
 
                 // Update histogram when dropdown changes
@@ -334,15 +355,16 @@
                     updateHistogram(event.target.value);
                 });
 
-                // Extract and normalize stats for radar chart
+                // Extract and normalize stats for radar chart 
+                //REVISAR
                 const goals = parseInt(player.fields['Goles'] || 0, 10);
                 const assists = parseInt(player.fields['Asistencias'] || 0, 10);
-                const stops = parseInt(player.fields['Paradas'] || 0, 10);
+                const penaltiesProvocados = parseInt(player.fields['Penaltis Provocados'] || 0, 10);
                 const penaltiesSaved = parseInt(player.fields['Penaltis Parados'] || 0, 10);
                 const foulsMade = parseInt(player.fields['Faltas provocadas'] || 0, 10);
 
                 const attack = normalize(goals + assists, 0, 50);
-                const defense = normalize(stops + penaltiesSaved, 0, 50);
+                const defense = normalize(penaltiesProvocados + penaltiesSaved, 0, 50);
                 const fairPlay = normalize(50 - foulsMade, 0, 50);
 
                 // Calculate overall score
@@ -373,19 +395,22 @@
                                 grid: {
                                     color: '#2d2d2d',
                                 },
+                                pointLabels: {
+                                    color: '#ffffff',  // Color of the labels (Ataque, Defensa, Fair Play)
+                                }
                             }
                         },
                         plugins: {
                             legend: {
-                                labels: {
-                                    color: '#ffffff',
-                                }
+                                display: false,  // Hides the legend entirely
                             }
                         }
                     }
                 });
 
-                } else {
+                })
+                        .catch(error => console.error('Error fetching image:', error));    
+            } else {
                     alert('Player not found');
                 }
             })

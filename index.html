@@ -51,8 +51,12 @@
             padding: 10px;
             font-size: 14px;
             margin: 20px auto;
-            width: 80%;
+            width: 100%;
             text-align: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            max-width: 600px;
         }
 
         main {
@@ -66,15 +70,17 @@
             width: 100%;
             max-width: 800px;
             margin-bottom: 30px;
+            text-align: center;
+            color: #ffffff
         }
 
         .section h2 {
-            border-bottom: 2px solid #3b82f6;
+            border-bottom: 2px solid #154c79;
             padding-bottom: 5px;
             margin-bottom: 15px;
         }
         .top-players h2 {
-            border-bottom: 2px solid #3b82f6;
+            border-bottom: 2px solid #154c79;
             padding-bottom: 5px;
             margin-bottom: 15px;
             text-align: center;
@@ -84,6 +90,7 @@
             text-align: center;
             padding-bottom: 5px;
             margin-bottom: 15px;
+            color: #ffffff
         }
 
         table {
@@ -110,7 +117,7 @@
 
         .see-more a {
             display: inline-block;
-            background-color: #3b82f6;
+            background-color: #154c79;
             color: #ffffff;
             padding: 10px 20px;
             text-decoration: none;
@@ -118,7 +125,7 @@
         }
 
         .see-more a:hover {
-            background-color: #2563eb;
+            background-color: #063970;
         }
 
         footer {
@@ -154,28 +161,28 @@
             font-size: 24px;
             text-align: center;
             margin-bottom: 8px;
-            color: #333;
+            color: #00796b;
         }
 
         .match-score {
             font-size: 36px;
-            font-weight: bold;
             text-align: center;
-            color: #333;
+            color: #00796b;
             margin: 0 20px;
             flex-shrink: 0;
         }
 
         .score {
             font-size: 32px;
-            color: #007BFF;
+            color: #154c79;
+            font-weight: bold;
         }
 
         .match-date {
             font-size: 14px;
             text-align: center;
             margin-bottom: 8px;
-            color: #555;
+            color: #00796b;
         }
 
         .match-players {
@@ -200,7 +207,7 @@
             text-align: center;
             font-size: 16px;
             margin-bottom: 10px;
-            color: #000000;
+            color: #e0f7fa;
             background-color: #28a745;
             padding: 5px 10px;
             border-radius: 5px;
@@ -212,7 +219,7 @@
             text-align: center;
             font-size: 16px;
             margin-bottom: 10px;
-            color: #000000;
+            color: #e0f7fa;
             background-color: #dc3545;
             padding: 5px 10px;
             border-radius: 5px;
@@ -301,7 +308,7 @@
                 // Add "See More" button
                 const seeMore = document.createElement('div');
                 seeMore.className = 'see-more';
-                seeMore.innerHTML = '<a href="stats.html">See Full Stats</a>';
+                seeMore.innerHTML = '<a href="stats.html">Ver más</a>';
                 document.querySelector('.top-players').appendChild(seeMore);
             } catch (error) {
                 console.error('Error fetching or processing data:', error);
@@ -403,13 +410,23 @@
                         // Add team names
                         const date = document.createElement('p');
                         date.className = 'match-teams';
-                        date.textContent = match.fields.Fecha;
+                        date.innerHTML =  `<strong>${match.fields.Fecha}</strong>`;
                         matchContainer.appendChild(date);
+
+                         // Determine the winner and loser scores
+                        let winnerScore = scoreA;
+                        let loserScore = scoreB;
+
+                        if (scoreA < scoreB) {
+                            // Swap the scores and players if scoreB is higher
+                            winnerScore = scoreB;
+                            loserScore = scoreA;
+                        }
 
                         // Add match score
                         const score = document.createElement('p');
                         score.className = 'match-score';
-                        score.innerHTML = `<span class="score">${scoreA}</span> - <span class="score">${scoreB}</span>`;
+                        score.innerHTML = `<span class="score">${winnerScore}</span> - <span class="score">${loserScore}</span>`;
                         //matchContainer.appendChild(score);
 
                         // Add match date
@@ -504,18 +521,18 @@
 </head>
 <body>
     <header>
-        <h1>Soccer League</h1>
+        <h1>Liga Pachanga</h1>
     </header>
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="players.html">Players</a>
-        <a href="stats.html">Stats</a>
+        <a href="index.html">Inicio</a>
+        <a href="players.html">Jugadores</a>
+        <a href="stats.html">Estadísticas</a>
     </nav>
 
     <main>
         <div class="section">
-            <h2>Upcoming Matches</h2>
+            <h2>Siguientes Partidos</h2>
             <div id="upcoming-matches">
                 <!-- Matches will be dynamically added here -->
             </div>
@@ -539,7 +556,7 @@
         </div>
 
         <div class="section">
-            <h2>Last Results</h2>
+            <h2>Resultados anteriores</h2>
             <div id="past-matches" class="matches-container">
                 <!-- Last matches will be dynamically added here -->
             </div>
@@ -547,7 +564,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Soccer League | All Rights Reserved</p>
+        <p>&copy; All Rights Reserved</p>
     </footer>
 </body>
 </html>
