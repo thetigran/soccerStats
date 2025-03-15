@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stats</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rowdies:wght@700&display=swap" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
@@ -14,23 +16,29 @@
         }
 
         header {
-            background-color: #1e1e1e;
-            padding: 20px;
+            background-color: #585858; /* Grey background */
+            padding: 30px 20px;
             text-align: center;
             border-bottom: 2px solid #2d2d2d;
         }
 
         header h1 {
             margin: 0;
-            font-size: 2rem;
+            font-size: 3rem; /* Bigger letters */
+            font-weight: bold;
+            color: white;
+            font-family: 'Rowdies', sans-serif;
+            font-weight: 700;
         }
 
         nav {
             display: flex;
             justify-content: center;
-            background-color: #1e1e1e;
+            background-color: #888;
             border-bottom: 2px solid #2d2d2d;
             padding: 10px 0;
+            text-align: center;
+            font-family: 'Rowdies', sans-serif;
         }
 
         nav a {
@@ -38,6 +46,7 @@
             text-decoration: none;
             margin: 0 15px;
             font-weight: bold;
+            font-size: 1.3em;
         }
 
         nav a:hover {
@@ -195,13 +204,13 @@
 </script>
 <body>
     <header>
-        <h1>Liga Pachanga</h1>
+        <h1>LA PACHANGA</h1>
     </header>
 
     <nav>
-        <a href="index.html">Inicio</a>
-        <a href="players.html">Jugadores</a>
-        <a href="stats.html">Estadísticas</a>
+        <a href="players.html">JUGADORES</a>
+        <a href="index.html">INICIO</a>
+        <a href="stats.html">ESTADISTICAS</a>
     </nav>
 
     <main>
@@ -259,7 +268,12 @@
                 rows.forEach(row => {
                     const fields = row.fields;
                     const player = fields['Jugador'];
-        
+
+                    // Check if the player name is valid (non-empty, non-null)
+                    if (!player) {
+                        return; // Skip this row if no player name is provided
+                    }
+                    
                     if (!playerStats[player]) {
                         playerStats[player] = {
                             jugador: player,
@@ -355,5 +369,3 @@
     </footer>
 </body>
 </html>
-
-<!--Puntos MVP, goles propia-->
