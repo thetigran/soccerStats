@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soccer League</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rowdies:wght@700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -14,23 +15,29 @@
         }
 
         header {
-            background-color: #1e1e1e;
-            padding: 20px;
+            background-color: #585858; /* Grey background */
+            padding: 30px 20px;
             text-align: center;
             border-bottom: 2px solid #2d2d2d;
         }
 
         header h1 {
             margin: 0;
-            font-size: 2rem;
+            font-size: 3rem; /* Bigger letters */
+            font-weight: bold;
+            color: white;
+            font-family: 'Rowdies', sans-serif;
+            font-weight: 700;
         }
 
         nav {
             display: flex;
             justify-content: center;
-            background-color: #1e1e1e;
+            background-color: #888;
             border-bottom: 2px solid #2d2d2d;
             padding: 10px 0;
+            text-align: center;
+            font-family: 'Rowdies', sans-serif;
         }
 
         nav a {
@@ -38,6 +45,7 @@
             text-decoration: none;
             margin: 0 15px;
             font-weight: bold;
+            font-size: 1.3em;
         }
 
         nav a:hover {
@@ -57,6 +65,7 @@
             position: relative;
             width: 100%;
             max-width: 600px;
+            font-family: 'Rowdies', sans-serif;
         }
 
         main {
@@ -146,7 +155,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #e0f7fa;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin: 20px auto;
@@ -155,26 +163,27 @@
             width: 100%;
             max-width: 600px;
             text-align: center;
+            font-family: 'Rowdies', sans-serif;
         }
 
         .match-teams {
-            font-size: 24px;
+            font-size: 18px;
             text-align: center;
             margin-bottom: 8px;
-            color: #00796b;
+            color: #888;
         }
 
         .match-score {
             font-size: 36px;
             text-align: center;
-            color: #00796b;
+            color: #888;
             margin: 0 20px;
             flex-shrink: 0;
         }
 
         .score {
             font-size: 32px;
-            color: #154c79;
+            color: #ffffff;
             font-weight: bold;
         }
 
@@ -205,25 +214,27 @@
         .winners{
             width: 45%;
             text-align: center;
-            font-size: 16px;
+            font-size: 40px;
             margin-bottom: 10px;
-            color: #e0f7fa;
-            background-color: #28a745;
+            color: #006eff;
+/*            background-color: #28a745;*/
             padding: 5px 10px;
             border-radius: 5px;
             flex: 1;
+            font-family: 'Rowdies', sans-serif;
         }
 
         .losers {
             width: 45%;
             text-align: center;
-            font-size: 16px;
+            font-size: 40px;
             margin-bottom: 10px;
-            color: #e0f7fa;
-            background-color: #dc3545;
+            color: #dc3545;
+            /*background-color: #dc3545;*/
             padding: 5px 10px;
             border-radius: 5px;
             flex: 1;
+            font-family: 'Rowdies', sans-serif;
         }
 
         /* List styling for players */
@@ -407,12 +418,6 @@
                         const matchContainer = document.createElement('div');
                         matchContainer.className = 'match-container';
 
-                        // Add team names
-                        const date = document.createElement('p');
-                        date.className = 'match-teams';
-                        date.innerHTML =  `<strong>${match.fields.Fecha}</strong>`;
-                        matchContainer.appendChild(date);
-
                          // Determine the winner and loser scores
                         let winnerScore = scoreA;
                         let loserScore = scoreB;
@@ -427,13 +432,13 @@
                         const score = document.createElement('p');
                         score.className = 'match-score';
                         score.innerHTML = `<span class="score">${winnerScore}</span> - <span class="score">${loserScore}</span>`;
-                        //matchContainer.appendChild(score);
+                        matchContainer.appendChild(score);
 
                         // Add match date
-                        const teams = document.createElement('p');
-                        teams.className = 'match-date';
-                        teams.textContent = `${Nombre}`;
-                        matchContainer.appendChild(teams);
+                        const date = document.createElement('p');
+                        date.className = 'match-teams';
+                        date.innerHTML =  `<strong>${match.fields.Fecha}</strong>`;
+                        matchContainer.appendChild(date);
 
                         // Add players section
                         const playersSection = document.createElement('p');
@@ -459,9 +464,15 @@
                             <ul class="players-list" id="losers-list-${match.id}"></ul>
                         `;
 
+                        // Add match image
+/*                        const matchImage = document.createElement('p');
+                        score.className = 'match-image';
+                        score.innerHTML = `<span class="score">${winnerScore}</span> - <span class="score">${loserScore}</span>`;
+                        matchContainer.appendChild(score);
+*/
                         // Append winners and losers containers to the result container
+                        //resultContainer.appendChild(matchImage);
                         resultContainer.appendChild(winnersContainer);
-                        resultContainer.appendChild(score);
                         resultContainer.appendChild(losersContainer);
 
                         // Add the result container to the match container
@@ -496,7 +507,6 @@
                             }
                         }
 
-
                        // matchContainer.appendChild(playersSection);
                        // matchContainer.appendChild(winnersList);
                        // matchContainer.appendChild(losersList);
@@ -521,18 +531,18 @@
 </head>
 <body>
     <header>
-        <h1>Liga Pachanga</h1>
+        <h1>LA PACHANGA</h1>
     </header>
 
     <nav>
-        <a href="index.html">Inicio</a>
-        <a href="players.html">Jugadores</a>
-        <a href="stats.html">Estadísticas</a>
+        <a href="players.html">JUGADORES</a>
+        <a href="index.html">INICIO</a>
+        <a href="stats.html">ESTADISTICAS</a>
     </nav>
 
     <main>
         <div class="section">
-            <h2>Siguientes Partidos</h2>
+            <h2>SIGUIENTES PARTIDOS</h2>
             <div id="upcoming-matches">
                 <!-- Matches will be dynamically added here -->
             </div>
@@ -556,7 +566,7 @@
         </div>
 
         <div class="section">
-            <h2>Resultados anteriores</h2>
+            <h2>RESULTADOS ANTERIORES</h2>
             <div id="past-matches" class="matches-container">
                 <!-- Last matches will be dynamically added here -->
             </div>
@@ -568,5 +578,3 @@
     </footer>
 </body>
 </html>
-
-
