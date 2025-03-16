@@ -31,8 +31,52 @@
             font-weight: 700;
         }
 
+
+        /* Responsive Navigation */
+        @media screen and (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                display: block;
+                margin: 10px 0;
+                font-size: 1.1em;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+        }
+
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+                margin: 10px;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+            }
+            .nav-links a {
+                display: block;
+                padding: 10px;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+        }
+
         nav {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             background-color: #888;
             border-bottom: 2px solid #2d2d2d;
@@ -57,11 +101,80 @@
             padding: 20px;
         }
 
+        .table-wrapper {
+            display: flex;
+            border: 1px solid #2d2d2d;
+            border-radius: 8px;
+            max-width: 100%; /* Ensure it doesn't exceed the screen width */
+            white-space: nowrap;
+            position: relative;
+            overflow: visible; /* Prevent elements from spilling out */
+        }
+
+        .fixed-columns {
+            flex: 0 0 auto; /* Prevents it from shrinking */
+            background-color: #154c79;
+            color: #fff;
+        }
+        
+        .fixed-columns table {
+            border-collapse: collapse;
+        }
+
+        .fixed-columns th, .fixed-columns td {
+            border: 1px solid #2d2d2d;
+            padding: 10px;
+            text-align: left;
+            min-width: 120px; /* Adjust width as needed */
+            white-space: nowrap;
+            width: 50px;  /* Adjust the width as needed */
+        }
+
+        #statsTableFixed th:first-child,
+        #statsTableFixed td:first-child {
+            width: 50px;  /* Adjust the width as needed */
+            min-width: 50px;
+            max-width: 50px;
+            text-align: center;
+        }
+
+        #statsTableFixed th:nth-child(2),
+        #statsTableFixed td:nth-child(2) {
+            width: 120px;  /* Decrease width */
+            min-width: 120px;
+            max-width: 120px;
+            text-align: center; /* Adjust alignment if needed */
+        }
+
+        .scrollable-columns {
+            flex: 1;
+            overflow-x: auto;
+        }
+
+        .scroll-container {
+            width: max-content; /* Ensures content only scrolls when needed */
+        }
+
+        .scrollable-columns table {
+            border-collapse: collapse;
+        }
+
+        .scrollable-columns th, .scrollable-columns td {
+            border: 1px solid #2d2d2d;
+            padding: 10px;
+            text-align: center;
+            min-width: 120px; /* Adjust width */
+            white-space: nowrap;
+        }
+
         .table-container {
             overflow-x: auto; /* Enable horizontal scrolling */
             max-width: 100%; /* Ensure it doesn't exceed the screen width */
             border: 1px solid #2d2d2d; /* Add a border around the scrollable area */
             border-radius: 8px;
+            white-space: nowrap;
+            position: relative;
+            overflow: visible; /* Prevent elements from spilling out */
         }
 
         table {
@@ -69,7 +182,7 @@
             border-collapse: collapse;
             margin-top: 20px;
             margin: 0; /* Ensure it aligns with the container */
-            overflow: hidden; /* Prevent elements from spilling out */
+            overflow: visible; /* Prevent elements from spilling out */
         }
 
         table th, table td {
@@ -99,7 +212,6 @@
             z-index: 1;
         }
 
-
         table th .sort-arrow {
             font-size: 12px;
             margin-left: 5px;
@@ -127,7 +239,7 @@
         }
 
         table td a:hover {
-            color: #063970; /* Add a subtle hover effect with blue */
+            color: #154c79; /* Add a subtle hover effect with blue */
             text-decoration: underline; /* Optional: Add underline on hover */
         }
 
@@ -172,7 +284,7 @@
 
         .tooltip-text {
             visibility: hidden;
-            position: absolute;
+            position: fixed;
             bottom: 120%; /* Position above the icon */
             left: 50%;
             transform: translateX(-50%);
@@ -185,7 +297,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             opacity: 0;
             transition: visibility 0s, opacity 0.2s ease-in-out;
-            z-index: 1000;
+            z-index: 9999;
         }
 
         .tooltip-container:hover .tooltip-text,
@@ -207,43 +319,72 @@
         <h1>LA PACHANGA</h1>
     </header>
 
-    <nav>
-        <a href="players.html">JUGADORES</a>
-        <a href="index.html">INICIO</a>
-        <a href="stats.html">ESTADISTICAS</a>
-    </nav>
+    <div class="nav-container">
+        <button class="menu-toggle">☰</button>
+        <nav class="nav-links">
+            <a href="players.html">JUGADORES</a>
+            <a href="index.html">INICIO</a>
+            <a href="stats.html">ESTADISTICAS</a>
+        </nav>
+    </div>
+
+    <script>
+        document.querySelector(".menu-toggle").addEventListener("click", function() {
+            document.querySelector(".nav-links").classList.toggle("active");
+        });
+    </script>
 
     <main>
-        <div class="table-container">
-        <table id="statsTable">
-            <thead>
-                <tr>
-                    <th class="sticky">#</th>
-                    <th class="sticky" data-column="jugador">Jugador<span class="sort-arrow">▲</span></th>
-                    <th data-column="partidosJugados">Partidos Jugados<span class="sort-arrow"></span></th>
-                    <th data-column="partidosGanados">Partidos Ganados<span class="sort-arrow"></span></th>
-                    <th data-column="puntosMVP">
-                        Puntos MVP
-                        <sup class="tooltip-container">
-                            <span class="tooltip-icon">?</span>
-                            <div class="tooltip-text">Los tres mejores jugadores de la jornada reciben puntos de MVP (3, 2, 1)</div>
-                        </sup>
-                        <span class="sort-arrow"></span>
-                    </th>
-                    <th data-column="goles">Goles<span class="sort-arrow"></span></th>
-                    <th data-column="golesPropia">Goles en Propia<span class="sort-arrow"></span></th>
-                    <th data-column="asistencias">Asistencias<span class="sort-arrow"></span></th>
-                    <th data-column="golesContribuidos">Goles Contribuidos<span class="sort-arrow"></span></th>
-                    <th data-column="penaltisProvocados">Penaltis Provocados<span class="sort-arrow"></span></th>
-                    <th data-column="faltasProvocadas">Faltas provocadas<span class="sort-arrow"></span></th>
-                    <th data-column="penaltisParados">Penaltis parados<span class="sort-arrow"></span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will be injected here -->
-            </tbody>
-        </table>
-         </div>
+
+        <div class="table-wrapper">
+            <div class="fixed-columns">
+                <table id="statsTableFixed">
+                    <thead>
+                        <tr>
+                            <th class="sticky">#</th>
+                            <th class="sticky" data-column="jugador">Jugador<span class="sort-arrow">▲</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="fixed-tbody">
+                        <!-- Fixed content will be dynamically filled -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="scrollable-columns">
+                <div class="scroll-container">
+                    <table id="statsTable">
+                        <thead>
+                            <tr>
+                                <th data-column="partidosJugados">Partidos Jugados<span class="sort-arrow"></span></th>
+                                <th data-column="partidosGanados">Partidos Ganados<span class="sort-arrow"></span></th>
+                                <th data-column="puntosMVP">
+                                    Puntos MVP
+                                    <sup class="tooltip-container">
+                                        <span class="tooltip-icon">?</span>
+                                        <div class="tooltip-text">Los tres mejores jugadores de la jornada reciben puntos de MVP</div>
+                                    </sup>
+                                    <span class="sort-arrow"></span>
+                                </th>
+                                <th data-column="goles">Goles<span class="sort-arrow"></span></th>
+                                <th data-column="golesPropia">Goles en Propia<span class="sort-arrow"></span></th>
+                                <th data-column="asistencias">Asistencias<span class="sort-arrow"></span></th>
+                                <th data-column="golesContribuidos">Goles Contribuidos<span class="sort-arrow"></span></th>
+                                <th data-column="penaltisProvocados">Penaltis Provocados<span class="sort-arrow"></span></th>
+                                <th data-column="faltasProvocadas">Faltas provocadas<span class="sort-arrow"></span></th>
+                                <th data-column="penaltisParados">Penaltis parados<span class="sort-arrow"></span></th>
+                                <th data-column="promedioGoles">Promedio Goles<span class="sort-arrow"></span></th>
+                                <th data-column="promedioAsistencias">Promedio Asistencias<span class="sort-arrow"></span></th>
+                                <th data-column="promedioVictorias">Promedio Victorias<span class="sort-arrow"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="scrollable-tbody">
+                            <!-- Scrollable content will be dynamically filled -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     
         <script>
             const baseId = 'app9PTtjDQsuwHyIz'; // Replace with your base ID
@@ -286,7 +427,10 @@
                             partidosGanados: 0,
                             golesPropia: 0,
                             golesContribuidos: 0,
-                            puntosMVP: 0
+                            puntosMVP: 0,
+                            promedioGoles: 0,
+                            promedioAsistencias: 0,
+                            promedioVictorias: 0
                         };
                     }
         
@@ -300,6 +444,9 @@
                     playerStats[player].golesPropia += parseInt(fields['Goles en Propia'] || 0, 10);
                     playerStats[player].puntosMVP += parseInt(fields['MVP'] || 0, 10);
                     playerStats[player].golesContribuidos = playerStats[player].goles + playerStats[player].asistencias;
+                    playerStats[player].promedioGoles = playerStats[player].goles / playerStats[player].partidosJugados;
+                    playerStats[player].promedioAsistencias = playerStats[player].asistencias / playerStats[player].partidosJugados;
+                    playerStats[player].promedioVictorias = playerStats[player].partidosGanados / playerStats[player].partidosJugados;
                 });
         
                 currentData = Object.values(playerStats).sort((a, b) => a.jugador.localeCompare(b.jugador));
@@ -308,15 +455,26 @@
             .catch(error => console.error('Error fetching data: ', error));
         
             function renderTable(data) {
+
+                const fixedRows = document.querySelector('#statsTableFixed tbody');
                 const tableBody = document.querySelector('#statsTable tbody');
-                tableBody.innerHTML = '';
-        
+                fixedRows.innerHTML = ''; // Clear previous content
+                tableBody.innerHTML = ''; // Clear previous content
+
                 data.forEach((stats, index) => {
-                    const tr = document.createElement('tr');
-        
-                    tr.innerHTML = `
+                    // Create row for fixed columns
+                    const fixedTr = document.createElement('tr');
+                    fixedTr.innerHTML = `
                         <td class="sticky">${index + 1}</td>
-                        <td class="sticky"><a href="player.html?playerName=${encodeURIComponent(stats.jugador)}">${stats.jugador}</a></td>
+                        <td class="sticky">
+                            <a href="player.html?playerName=${encodeURIComponent(stats.jugador)}">${stats.jugador}</a>
+                        </td>
+                    `;
+                    fixedRows.appendChild(fixedTr);
+
+                    // Create row for scrollable columns
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
                         <td>${stats.partidosJugados}</td>
                         <td>${stats.partidosGanados}</td>
                         <td>${stats.puntosMVP}</td>
@@ -327,17 +485,19 @@
                         <td>${stats.penaltisProvocados}</td>
                         <td>${stats.faltasProvocadas}</td>
                         <td>${stats.penaltisParados}</td>
+                        <td>${stats.promedioGoles}</td>
+                        <td>${stats.promedioAsistencias}</td>
+                        <td>${stats.promedioVictorias}</td>
                     `;
-        
                     tableBody.appendChild(tr);
                 });
             }
-        
-            document.querySelectorAll('#statsTable th').forEach(header => {
+
+            document.querySelectorAll('#statsTable th, #statsTableFixed th').forEach(header => {
                 header.addEventListener('click', () => {
                     const column = header.getAttribute('data-column');
                     const isAscending = header.classList.contains('asc');
-        
+
                     currentData.sort((a, b) => {
                         if (isAscending) {
                             return a[column] > b[column] ? -1 : 1;
@@ -345,23 +505,45 @@
                             return a[column] < b[column] ? -1 : 1;
                         }
                     });
-        
-                    // Remove sort classes and arrows from all headers
-                    document.querySelectorAll('#statsTable th').forEach(th => {
+
+                    // Remove sort classes and arrows from all headers in both tables
+                    document.querySelectorAll('#statsTable th, #statsTableFixed th').forEach(th => {
                         th.classList.remove('asc', 'desc');
                         const arrow = th.querySelector('.sort-arrow');
                         if (arrow) arrow.textContent = '';
                     });
-        
+
                     // Update the clicked header's arrow
                     header.classList.toggle('asc', !isAscending);
                     header.classList.toggle('desc', isAscending);
                     header.querySelector('.sort-arrow').textContent = isAscending ? '▼' : '▲';
-        
+
                     renderTable(currentData);
                 });
             });
         </script>
+
+        <script>
+            document.querySelectorAll(".tooltip-container").forEach(container => {
+                const tooltip = container.querySelector(".tooltip-text");
+
+                container.addEventListener("mouseenter", (event) => {
+                    const rect = container.getBoundingClientRect();
+
+                    tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
+                    tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+
+                    tooltip.style.visibility = "visible";
+                    tooltip.style.opacity = "1";
+                });
+
+                container.addEventListener("mouseleave", () => {
+                    tooltip.style.visibility = "hidden";
+                    tooltip.style.opacity = "0";
+                });
+            });
+        </script>
+        
     </main>
 
     <footer>
@@ -369,3 +551,5 @@
     </footer>
 </body>
 </html>
+
+<!--Puntos MVP, goles propia-->
