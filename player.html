@@ -27,8 +27,6 @@
             padding: 20px;
         }
 
-       
-
         header {
             background-color: #585858; /* Grey background */
             padding: 30px 20px;
@@ -45,8 +43,51 @@
             font-weight: 700;
         }
 
+        /* Responsive Navigation */
+        @media screen and (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                display: block;
+                margin: 10px 0;
+                font-size: 1.1em;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+        }
+
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+                margin: 10px;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+            }
+            .nav-links a {
+                display: block;
+                padding: 10px;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+        }
+
         nav {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             background-color: #888;
             border-bottom: 2px solid #2d2d2d;
@@ -102,6 +143,12 @@
             object-position: 50% 40%; /* This ensures the image is centered if it gets cropped */
         }
 
+        #player-name {
+            font-family: 'Rowdies', sans-serif;
+            font-weight: 700; /* Adjust weight as needed (300, 400, 700) */
+            font-size: 2rem;  /* Adjust size as needed */
+        }
+
     </style>
 </head>
 <script>
@@ -114,11 +161,20 @@
         <h1>LA PACHANGA</h1>
     </header>
 
-    <nav>
-        <a href="players.html">JUGADORES</a>
-        <a href="index.html">INICIO</a>
-        <a href="stats.html">ESTADISTICAS</a>
-    </nav>
+    <div class="nav-container">
+        <button class="menu-toggle">☰</button>
+        <nav class="nav-links">
+            <a href="players.html">JUGADORES</a>
+            <a href="index.html">INICIO</a>
+            <a href="stats.html">ESTADISTICAS</a>
+        </nav>
+    </div>
+
+    <script>
+        document.querySelector(".menu-toggle").addEventListener("click", function() {
+            document.querySelector(".nav-links").classList.toggle("active");
+        });
+    </script>
 
     <main id="player-main" style="display: flex; flex-direction: column; align-items: center; padding: 20px;">
         <!-- Player Info -->
@@ -134,6 +190,10 @@
             <h2>Estadísticas</h2>
             <p id="total-mvp">Puntos MVP: 0</p>
             <p id="total-fouls">Faltas: 0</p>
+            <p id="average-goals"></p>
+            <p id="average-assists"></p>
+            <p id="average-victories"></p>
+            
 
 
         <!-- Pie Chart <div class="pie-chart-container" style="width: 200px; height: 200px; margin-bottom: 20px;">-->
@@ -235,7 +295,9 @@
                 let totalMVP = 0;
                 let totalFouls = 0;
                 let totalMatchesPlayed = 0;
-                let totalMatchesWon = 0;
+                let totalMatchesWon = 0; 
+                let totalGoals = 0;
+                let totalAssists = 0;
 
                 // Stats for histogram
                 const statsHistory = [];
@@ -246,6 +308,8 @@
                     if (record.fields.Jugador === playerName) {
                         totalMVP += parseInt(record.fields['MVP'] || 0, 10);
                         totalFouls += parseInt(record.fields['Faltas provocadas'] || 0, 10);
+                        totalGoals += parseInt(record.fields.Goles || 0, 10);
+                        totalAssists += parseInt(record.fields.Asistencias || 0, 10);
                         if (record.fields.Juega === 'S') totalMatchesPlayed++;
                         if (parseInt(record.fields['Partido Ganado'], 10) === 1) totalMatchesWon++;
 
@@ -279,6 +343,16 @@
                 document.getElementById('total-mvp').innerText = `Puntos MVP: ${totalMVP}`;
                 document.getElementById('total-fouls').innerText = `Faltas: ${totalFouls}`;
 
+                const averageGoals = totalGoals / totalMatchesPlayed;
+                const averageAssists = totalAssists / totalMatchesPlayed;
+                const averageVictories = (totalMatchesWon / totalMatchesPlayed) * 100;  // Convert to percentage
+
+
+                // Display the averages below the profile PROMEDIO DE VICTORIAS
+                document.getElementById('average-goals').innerText = `Promedio de goles: ${averageGoals}`;
+                document.getElementById('average-assists').innerText = `Promedio de asistencias: ${averageAssists}`;
+                document.getElementById('average-victories').innerText = `Promedio de victorias: ${averageVictories.toFixed(2)}%`;  // Showing the result with two decimal points
+
                 // Create Pie Chart for victories with adjusted size and color
                 const victoryData = {
                     labels: ['Victorias', 'Derrotas'],
@@ -308,6 +382,10 @@
                     },
                 });
 
+                // Ensure statsHistory is sorted by week (in case it isn't already)
+                statsHistory.sort((a, b) => a.week - b.week);
+
+
                 // Create Line Chart for player stats
                 const ctxHistogram = document.getElementById('stat-histogram').getContext('2d');
 
@@ -325,7 +403,7 @@
                 const updateHistogram = (statIndex) => {
                     const data = statData[statIndex];
                     const chartData = {
-                        labels: statsHistory.map(week => `Week ${week.week}`),
+                        labels: statsHistory.map(week => `Semana ${week.week}`),
                         datasets: [{
                             label: statsFields[statIndex],
                             data: data,
@@ -350,7 +428,7 @@
                                 x: {
                                     title: {
                                         display: true,
-                                        text: 'Weeks',
+                                        text: 'Semanas',
                                     },
                                     ticks: {
                                         autoSkip: true,
