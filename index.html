@@ -32,6 +32,7 @@
 
         nav {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             background-color: #888;
             border-bottom: 2px solid #2d2d2d;
@@ -46,6 +47,49 @@
             margin: 0 15px;
             font-weight: bold;
             font-size: 1.3em;
+        }
+
+
+        /* Responsive Navigation */
+        @media screen and (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                display: block;
+                margin: 10px 0;
+                font-size: 1.1em;
+            }
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+        }
+
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+                margin: 10px;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+            }
+            .nav-links a {
+                display: block;
+                padding: 10px;
+            }
+            .nav-links.active {
+                display: flex;
+            }
         }
 
         nav a:hover {
@@ -88,24 +132,35 @@
             padding-bottom: 5px;
             margin-bottom: 15px;
         }
+
         .top-players h2 {
             border-bottom: 2px solid #154c79;
             padding-bottom: 5px;
             margin-bottom: 15px;
             text-align: center;
+            font-family: 'Rowdies', sans-serif;
         }
+
         .top-players {
             padding-bottom: 15px;
             text-align: center;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            color: #ffffff
+            margin-bottom: 1px;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1000px;
+            flex-wrap: wrap;
+        }
+        
+        .table-container {
+            margin-bottom: 1px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 1px;
         }
 
         th, td {
@@ -121,7 +176,7 @@
 
         .see-more {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 5px;
         }
 
         .see-more a {
@@ -147,6 +202,29 @@
         footer p {
             margin: 0;
             font-size: 0.9rem;
+        }
+
+
+        /* Responsive layout for small screens */
+        @media screen and (max-width: 768px) {
+            .top-players {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .table-container {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            table {
+                width: 100%;
+            }
+
+            .see-more {
+                width: 100%;
+                text-align: center;
+            }
         }
 
                 
@@ -267,7 +345,7 @@
             const airtableBaseId = 'app9PTtjDQsuwHyIz';
             const tableName = 'Table 1';
 
-            const url = `https://api.airtable.com/v0/${airtableBaseId}/${tableName}?sort[0][field]=Goles&sort[0][direction]=desc&maxRecords=5`;
+            const url = `https://api.airtable.com/v0/${airtableBaseId}/${tableName}`;
             try {
                 const response = await fetch(url, {
                     headers: {
@@ -281,46 +359,119 @@
                 }
 
                 const data = await response.json();
-                const tableBody = document.querySelector('#top-players-body');
 
+                const rows = data.records;
+        
+                const playerStats = {};
+        
+                rows.forEach(row => {
+                    const fields = row.fields;
+                    const player = fields['Jugador'];
 
-                const addedPlayers = new Set(); // To track added players
-                let rank = 1; // To keep track of the player's rank
-
-
-                data.records.forEach((player) => {
-                const playerName = player.fields.Jugador;
-
-                // Skip this player if they are already added
-                if (addedPlayers.has(playerName)) {
-                    return;
-                }
-
-                // Add the player to the table
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${rank}</td>
-                    <td>${playerName}</td>
-                    <td>${player.fields.Goles}</td>
-                    <td>${player.fields.Asistencias || 0}</td>
-                `;
-                tableBody.appendChild(row);
-
-                // Add the player to the registry and increment rank
-                addedPlayers.add(playerName);
-                rank++;
-
-                // Stop after adding 5 players
-                if (rank > 5) {
-                    return;
-                }
+                    // Check if the player name is valid (non-empty, non-null)
+                    if (!player) {
+                        return; // Skip this row if no player name is provided
+                    }
+                    
+                    if (!playerStats[player]) {
+                        playerStats[player] = {
+                            jugador: player,
+                            goles: 0,
+                            asistencias: 0,
+                            penaltisProvocados: 0,
+                            faltasProvocadas: 0,
+                            penaltisParados: 0,
+                            partidosJugados: 0,
+                            partidosGanados: 0,
+                            golesPropia: 0,
+                            golesContribuidos: 0,
+                            puntosMVP: 0
+                        };
+                    }
+        
+                    playerStats[player].goles += parseInt(fields['Goles'] || 0, 10);
+                    playerStats[player].asistencias += parseInt(fields['Asistencias'] || 0, 10);
+                    playerStats[player].penaltisProvocados += parseInt(fields['Penaltis Provocados'] || 0, 10);
+                    playerStats[player].faltasProvocadas += parseInt(fields['Faltas provocadas'] || 0, 10);
+                    playerStats[player].penaltisParados += parseInt(fields['Penaltis parados'] || 0, 10);
+                    playerStats[player].partidosJugados += fields['Juega'] === 'S' ? 1 : 0;
+                    playerStats[player].partidosGanados += parseInt(fields['Partido Ganado'] || 0, 10);
+                    playerStats[player].golesPropia += parseInt(fields['Goles en Propia'] || 0, 10);
+                    playerStats[player].puntosMVP += parseInt(fields['MVP'] || 0, 10);
+                    playerStats[player].golesContribuidos = playerStats[player].goles + playerStats[player].asistencias;
                 });
 
-                // Add "See More" button
-                const seeMore = document.createElement('div');
-                seeMore.className = 'see-more';
-                seeMore.innerHTML = '<a href="stats.html">Ver más</a>';
-                document.querySelector('.top-players').appendChild(seeMore);
+                const tableBodyGoles = document.querySelector('#goles-contribuidos-body');
+                const tableBodyMVP = document.querySelector('#mvp-points-body');
+                const tableBodyGanadores = document.querySelector('#winning-matches-body');
+
+                // Assuming playerStats is already populated
+                const players = Object.values(playerStats);
+
+                // Function to sort players by multiple criteria
+                const sortPlayers = (players, sortBy, secondarySortBy) => {
+                    return players.slice().sort((a, b) => {
+                        // Primary sort
+                        if (b[sortBy] !== a[sortBy]) {
+                            return b[sortBy] - a[sortBy];
+                        }
+                        // Secondary sort (alphabetical order)
+                        return a.jugador.localeCompare(b.jugador);
+                    });
+                };
+
+                // Sort players by different criteria
+                const sortedByGoles = sortPlayers(players, 'golesContribuidos', 'jugador');
+                const sortedByMVP = sortPlayers(players, 'puntosMVP', 'jugador');
+                const sortedByVictorias = sortPlayers(players, 'partidosGanados', 'jugador');
+
+                // Function to generate table rows
+                const generateTableRows = (players, rank, tableBody, columns) => {
+                    const processedPlayers = new Set();  // Track players that have already been added 
+                    players.slice(0, 5).forEach((player) => {
+                        const { jugador, goles, asistencias, golesContribuidos, puntosMVP, partidosGanados } = player;
+
+                        // Skip if the player is already processed
+                        if (processedPlayers.has(jugador)) {
+                            return;
+                        }
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${rank}</td>
+                            <td>${jugador}</td>
+                            ${columns.map(column => `<td>${column(player)}</td>`).join('')}
+                        `;
+                        tableBody.appendChild(row);
+
+                        processedPlayers.add(jugador); // Mark the player as processed
+                        rank++;
+                    });
+                };
+
+
+                // Insert data into each table
+                let rank = 1;
+
+                // Top Goles Contribuidos Table
+                generateTableRows(sortedByGoles, rank, tableBodyGoles, [
+                    (player) => player.goles,
+                    (player) => player.asistencias,
+                    (player) => player.golesContribuidos,
+                ]);
+
+                rank = 1;  // Reset rank for the next table
+                // Top MVP Table
+                generateTableRows(sortedByMVP, rank, tableBodyMVP, [
+                    (player) => player.puntosMVP
+                ]);
+
+                rank = 1;  // Reset rank for the next table
+                // Top Ganadores Table
+                generateTableRows(sortedByVictorias, rank, tableBodyGanadores, [
+                    (player) => player.partidosGanados
+                ]);
+
             } catch (error) {
                 console.error('Error fetching or processing data:', error);
             }
@@ -534,11 +685,20 @@
         <h1>LA PACHANGA</h1>
     </header>
 
-    <nav>
-        <a href="players.html">JUGADORES</a>
-        <a href="index.html">INICIO</a>
-        <a href="stats.html">ESTADISTICAS</a>
-    </nav>
+    <div class="nav-container">
+        <button class="menu-toggle">☰</button>
+        <nav class="nav-links">
+            <a href="players.html">JUGADORES</a>
+            <a href="index.html">INICIO</a>
+            <a href="stats.html">ESTADISTICAS</a>
+        </nav>
+    </div>
+
+    <script>
+        document.querySelector(".menu-toggle").addEventListener("click", function() {
+            document.querySelector(".nav-links").classList.toggle("active");
+        });
+    </script>
 
     <main>
         <div class="section">
@@ -548,22 +708,63 @@
             </div>
         </div>
 
-        <div class="top-players">
-            <h2>Top Goleadores</h2>
+
+        <section class="top-players">
+            <div class="table-container">
+                <h2>Top MVP</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Jugador</th>
+                            <th>Puntos MVP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mvp-points-body">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+
+        <div class="table-container">
+            <h2>Top Goles Contribuidos</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Rank</th>
-                        <th>Player</th>
-                        <th>Goals</th>
-                        <th>Assists</th>
+                        <th>Jugador</th>
+                        <th>Goles</th>
+                        <th>Asistencias</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
-                <tbody id="top-players-body">
+                <tbody id="goles-contribuidos-body">
                     <!-- Rows will be dynamically added here -->
                 </tbody>
             </table>
         </div>
+
+        <div class="table-container">
+            <h2>Top Ganadores</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Jugador</th>
+                        <th>Victorias</th>
+                    </tr>
+                </thead>
+                <tbody id="winning-matches-body">
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+    <div class="see-more">
+        <a href="stats.html">Ver más</a>
+    </div>
 
         <div class="section">
             <h2>RESULTADOS ANTERIORES</h2>
@@ -578,3 +779,5 @@
     </footer>
 </body>
 </html>
+
+
