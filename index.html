@@ -180,16 +180,23 @@
         }
 
         .see-more a {
-            display: inline-block;
-            background-color: #154c79;
-            color: #ffffff;
+            display: block;
             padding: 10px 20px;
             text-decoration: none;
-            border-radius: 5px;
+            margin: 20px auto;
+            border-radius: 30px;
+            background-color: white;
+            color: black;
+            font-family: 'Rowdies', cursive;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid black;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .see-more a:hover {
-            background-color: #063970;
+            background-color: #d3d3d3; /* Light grey */
+            color: black;
         }
 
         footer {
@@ -265,6 +272,18 @@
             font-weight: bold;
         }
 
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space between circles and score */
+        }
+
+        .score-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
         .match-date {
             font-size: 14px;
             text-align: center;
@@ -332,6 +351,33 @@
             margin-right: 8px;
         }
 
+        .group-image {
+            width: 100%; /* Adjust width as necessary */
+            max-height: 100%; /* Limit the height */
+            object-fit: cover; /* Maintain aspect ratio */
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .load-more-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            border-radius: 30px;
+            background-color: white;
+            color: black;
+            font-family: 'Rowdies', cursive;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid black;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .load-more-btn:hover {
+            background-color: #d3d3d3; /* Light grey */
+            color: black;
+        }
 
     </style>
     <script>
@@ -483,19 +529,28 @@
         const airtableBaseId = 'app9PTtjDQsuwHyIz';
         const matchesTableName = 'Table 2';
         const playersTableName = 'Table 1';
+        const fotosPartidosTableName = 'FotosPartidos';
         const currentYear = new Date().getFullYear();
     
         const matchesUrl = `https://api.airtable.com/v0/${airtableBaseId}/${matchesTableName}`;
         const playersUrl = `https://api.airtable.com/v0/${airtableBaseId}/${playersTableName}`;
+        const fotosUrl = `https://api.airtable.com/v0/${airtableBaseId}/${fotosPartidosTableName}`;
 
         try {
-            const [matchesResponse, playersResponse] = await Promise.all([
+
+            const today = new Date();
+            const [matchesResponse, playersResponse, fotosResponse] = await Promise.all([
                 fetch(matchesUrl, {
                     headers: {
                         Authorization: `Bearer ${airtableApiKey}`
                     }
                 }),
                 fetch(playersUrl, {
+                    headers: {
+                        Authorization: `Bearer ${airtableApiKey}`
+                    }
+                }),
+                fetch(fotosUrl, {
                     headers: {
                         Authorization: `Bearer ${airtableApiKey}`
                     }
@@ -506,16 +561,20 @@
                 console.error('Failed to fetch matches or players');
                 return;
             }
+            if (!fotosResponse.ok) {
+                console.error('Failed to fetch images');
+                return;
+            }
 
             const matchesData = await matchesResponse.json();
             const playersData = await playersResponse.json();
+            const fotosData = await fotosResponse.json();
 
             const playersMap = playersData.records.reduce((map, record) => {
                 map[record.id] = record.fields.Jugador; // Map player IDs to names
                 return map;
             }, {});
 
-            const today = new Date();
 
             function parseCustomDate(fecha) {
                 const [day, month] = fecha.split('/').map(Number);
@@ -536,7 +595,16 @@
             });
 
             const upcomingContainer = document.querySelector('#upcoming-matches');
+
+            // Sort past matches in descending order (newest first)
+            pastMatches.sort((a, b) => b.date - a.date);
+
             const pastContainer = document.querySelector('#past-matches');
+            const loadMoreBtn = document.createElement('button');
+            loadMoreBtn.textContent = 'Ver más';
+            loadMoreBtn.className = 'load-more-btn';
+            
+            let matchesDisplayed = 1; // Start with the most recent match
 
             // Display upcoming matches
             upcomingMatches.forEach((match) => {
@@ -555,123 +623,167 @@
             });
 
             // Display last 3 past matches
-            const pastMatchesToShow = pastMatches.slice(-3).reverse(); // Last 3 matches
+            //const pastMatchesToShow = pastMatches.slice(-3).reverse(); // Last 3 matches
 
-            if (pastMatchesToShow.length === 0) {
-                pastContainer.innerHTML = `<p>No past matches available.</p>`;
-            } else {
-                    for (const match of pastMatches) {
+            function displayMatch(match) {
+                const { Nombre, Resultado, Jugadores, Fecha } = match.fields;
 
-                        const { Nombre, Resultado, Jugadores } = match.fields;
-                        const [scoreA, scoreB] = Resultado.split('-');
+                // Create match container
+                const matchContainer = document.createElement('div');
+                matchContainer.className = 'match-container';
 
-                        // Create a container for the match
-                        const matchContainer = document.createElement('div');
-                        matchContainer.className = 'match-container';
+                // Parse score
+                if (!Resultado || !Resultado.includes('-')) return; // Skip if no score
+                const [scoreA, scoreB] = Resultado.split('-');
 
-                         // Determine the winner and loser scores
-                        let winnerScore = scoreA;
-                        let loserScore = scoreB;
+                let winnerScore = scoreA, loserScore = scoreB;
+                if (scoreA < scoreB) [winnerScore, loserScore] = [loserScore, winnerScore];
 
-                        if (scoreA < scoreB) {
-                            // Swap the scores and players if scoreB is higher
-                            winnerScore = scoreB;
-                            loserScore = scoreA;
-                        }
+                // Score UI
+                const scoreContainer = document.createElement('div');
+                scoreContainer.className = 'score-container';
 
-                        // Add match score
-                        const score = document.createElement('p');
-                        score.className = 'match-score';
-                        score.innerHTML = `<span class="score">${winnerScore}</span> - <span class="score">${loserScore}</span>`;
-                        matchContainer.appendChild(score);
+                const winnerColor = '#006eff', loserColor = '#dc3545';
 
-                        // Add match date
-                        const date = document.createElement('p');
-                        date.className = 'match-teams';
-                        date.innerHTML =  `<strong>${match.fields.Fecha}</strong>`;
-                        matchContainer.appendChild(date);
+                const leftCircle = document.createElement('div');
+                leftCircle.className = 'score-circle';
+                leftCircle.style.backgroundColor = winnerColor;
 
-                        // Add players section
-                        const playersSection = document.createElement('p');
-                        playersSection.className = 'match-players';
-                        playersSection.textContent = 'Players:';
+                const score = document.createElement('p');
+                score.className = 'match-score';
+                score.innerHTML = `<span class="score">${winnerScore}</span> - <span class="score">${loserScore}</span>`;
 
-                        const playersList = document.createElement('ul');
-                        playersList.className = 'players-list';
+                const rightCircle = document.createElement('div');
+                rightCircle.className = 'score-circle';
+                rightCircle.style.backgroundColor = loserColor;
 
-                        // Add containers for winners and losers
-                        const resultContainer = document.createElement('div');
-                        resultContainer.className = 'result-container';
+                scoreContainer.append(leftCircle, score, rightCircle);
+                matchContainer.appendChild(scoreContainer);
 
-                        const winnersContainer = document.createElement('div');
-                        winnersContainer.className = 'winners';
-                        winnersContainer.innerHTML = `
-                            <ul class="players-list" id="winners-list-${match.id}"></ul>
-                        `;
+                // Date
+                const date = document.createElement('p');
+                date.className = 'match-teams';
+                date.innerHTML = `<strong>${Fecha}</strong>`;
+                matchContainer.appendChild(date);
 
-                        const losersContainer = document.createElement('div');
-                        losersContainer.className = 'losers';
-                        losersContainer.innerHTML = `
-                            <ul class="players-list" id="losers-list-${match.id}"></ul>
-                        `;
+                // Find and add match image
+                const fotosMap = fotosData.records.reduce((map, record) => {
+                    if (record.fields.Fecha) map[record.fields.Fecha] = record.fields;
+                    return map;
+                }, {});
 
-                        // Add match image
-/*                        const matchImage = document.createElement('p');
-                        score.className = 'match-image';
-                        score.innerHTML = `<span class="score">${winnerScore}</span> - <span class="score">${loserScore}</span>`;
-                        matchContainer.appendChild(score);
-*/
-                        // Append winners and losers containers to the result container
-                        //resultContainer.appendChild(matchImage);
-                        resultContainer.appendChild(winnersContainer);
-                        resultContainer.appendChild(losersContainer);
-
-                        // Add the result container to the match container
-                        matchContainer.appendChild(resultContainer);
-
-                        // Add players to the correct side (winners or losers)
-                        const winnersList = resultContainer.querySelector(`#winners-list-${match.id}`);
-                        const losersList = resultContainer.querySelector(`#losers-list-${match.id}`);
-
-                        for (const playerId of Jugadores) {
-                            const playerRecord = playersData.records.find((record) => record.id === playerId);
-
-                            if (playerRecord) {
-                                const playerName = playerRecord.fields.Jugador;
-                                const partidoGanado = parseInt(playerRecord.fields['Partido Ganado'] || 0, 10); // Default to 0 if undefined
-                                const playerSemana = playerRecord.fields.Semana;
-
-                                // Check if the player's "Semana" matches the match's "Semana" and determine win/loss
-                                const won = playerSemana === match.fields.Semana && partidoGanado === 1;
-
-                                                        
-                                const playerItem = document.createElement('li');
-                                playerItem.className = `player-item ${won ? 'won' : 'lost'}`;
-                                playerItem.textContent = playerName;
-
-
-                                if (won) {
-                                    winnersList.appendChild(playerItem);
-                                } else {
-                                    losersList.appendChild(playerItem);
-                                }
-                            }
-                        }
-
-                       // matchContainer.appendChild(playersSection);
-                       // matchContainer.appendChild(winnersList);
-                       // matchContainer.appendChild(losersList);
-
-                        // Add spacing
-                        const spacing = document.createElement('p');
-                        spacing.innerHTML = '&nbsp;';
-                        matchContainer.appendChild(spacing);
-
-                        pastContainer.appendChild(matchContainer);
-                    }
-                }} catch (error) {
-                    console.error('Error fetching or processing matches:', error);
+                if (fotosMap[Fecha] && fotosMap[Fecha].Grupo?.[0]?.url) {
+                    const groupImage = document.createElement('img');
+                    groupImage.className = 'group-image';
+                    groupImage.src = fotosMap[Fecha].Grupo[0].url;
+                    matchContainer.appendChild(groupImage);
                 }
+
+                // Add players section
+                const playersSection = document.createElement('p');
+                playersSection.className = 'match-players';
+                playersSection.textContent = 'Players:';
+
+                const playersList = document.createElement('ul');
+                playersList.className = 'players-list';
+
+                // Add containers for winners and losers
+                const resultContainer = document.createElement('div');
+                resultContainer.className = 'result-container';
+
+                const winnersContainer = document.createElement('div');
+                winnersContainer.className = 'winners';
+                winnersContainer.innerHTML = `
+                    <ul class="players-list" id="winners-list-${match.id}"></ul>
+                `;
+
+                const losersContainer = document.createElement('div');
+                losersContainer.className = 'losers';
+                losersContainer.innerHTML = `
+                    <ul class="players-list" id="losers-list-${match.id}"></ul>
+                `;
+
+                // Add match image
+/*                        const matchImage = document.createElement('p');
+                score.className = 'match-image';
+                score.innerHTML = `<span class="score">${winnerScore}</span> - <span class="score">${loserScore}</span>`;
+                matchContainer.appendChild(score);
+*/
+                // Append winners and losers containers to the result container
+                //resultContainer.appendChild(matchImage);
+                resultContainer.appendChild(winnersContainer);
+                resultContainer.appendChild(losersContainer);
+
+                // Add the result container to the match container
+                matchContainer.appendChild(resultContainer);
+
+                // Add players to the correct side (winners or losers)
+                const winnersList = resultContainer.querySelector(`#winners-list-${match.id}`);
+                const losersList = resultContainer.querySelector(`#losers-list-${match.id}`);
+
+                for (const playerId of Jugadores) {
+                    const playerRecord = playersData.records.find((record) => record.id === playerId);
+
+                    if (playerRecord) {
+                        const playerName = playerRecord.fields.Jugador;
+                        const partidoGanado = parseInt(playerRecord.fields['Partido Ganado'] || 0, 10); // Default to 0 if undefined
+                        const playerSemana = playerRecord.fields.Semana;
+
+                        // Check if the player's "Semana" matches the match's "Semana" and determine win/loss
+                        const won = playerSemana === match.fields.Semana && partidoGanado === 1;
+
+                                                
+                        const playerItem = document.createElement('li');
+                        playerItem.className = `player-item ${won ? 'won' : 'lost'}`;
+                        playerItem.textContent = playerName;
+
+
+                        if (won) {
+                            winnersList.appendChild(playerItem);
+                        } else {
+                            losersList.appendChild(playerItem);
+                        }
+                    }
+                }
+
+            // matchContainer.appendChild(playersSection);
+            // matchContainer.appendChild(winnersList);
+            // matchContainer.appendChild(losersList);
+
+                // Add spacing
+                const spacing = document.createElement('p');
+                spacing.innerHTML = '&nbsp;';
+                matchContainer.appendChild(spacing);
+
+                pastContainer.appendChild(matchContainer);
+            }
+
+            // Display the most recent match initially
+            if (pastMatches.length > 0) {
+                displayMatch(pastMatches[0]);
+                if (pastMatches.length > 1) pastContainer.appendChild(loadMoreBtn);
+            } else {
+                pastContainer.innerHTML = `<p>No past matches available.</p>`;
+            }
+
+            // Load more matches on button click
+            loadMoreBtn.addEventListener('click', () => {
+                if (matchesDisplayed < pastMatches.length) {
+                    displayMatch(pastMatches[matchesDisplayed]);
+                    matchesDisplayed++;
+
+                    // Move the button below the newly added match
+                    pastContainer.appendChild(loadMoreBtn);
+
+                    if (matchesDisplayed >= pastMatches.length) {
+                        loadMoreBtn.remove(); // Hide button if no more matches
+                    }
+                }
+            });
+
+        }catch (error) {
+                console.error('Error fetching or processing matches:', error);
+            }
         }
 
     window.onload = () => {
