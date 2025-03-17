@@ -9,22 +9,31 @@
 
     <style>
         body {
+            font-family: 'Rowdies', sans-serif;
+            background: #121212;
+            color: white;
             margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background-color: #121212;
-            color: #ffffff;
         }
 
         footer {
-            background-color: #1e1e1e;
             text-align: center;
             padding: 20px;
-            border-bottom: 2px solid #2d2d2d;
+            background-color: #1e1e1e;
             border-top: 2px solid #2d2d2d;
+            font-family: 'Roboto', sans-serif;
+            border-bottom: 2px solid #2d2d2d;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
         }
 
         main {
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         header {
@@ -123,6 +132,7 @@
 
         .histogram-container {
             margin-top: 20px;
+             /*width: 60%; /* Make it take up the full width of the container */
         }
 
         .dropdown-container {
@@ -149,6 +159,78 @@
             font-size: 2rem;  /* Adjust size as needed */
         }
 
+
+        .player-card {
+            display: flex;
+            background: linear-gradient(135deg, #d4af37, #8c6c13);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .player-image {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            margin-right: 20px;
+            object-position: 50% 40%; 
+            border: 4px solid white;
+            border-radius: 50%;
+        }
+
+        .player-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .player-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .player-club {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 30px;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        @media (max-width: 600px) {
+            .player-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                width: 90%;
+            }
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .player-image {
+                margin-bottom: 10px;
+            }
+        }
+
     </style>
 </head>
 <script>
@@ -157,6 +239,7 @@
     }
 </script>
 <body>
+    <div>
     <header>
         <h1>LA PACHANGA</h1>
     </header>
@@ -175,17 +258,17 @@
             document.querySelector(".nav-links").classList.toggle("active");
         });
     </script>
-
+ <!--
     <main id="player-main" style="display: flex; flex-direction: column; align-items: center; padding: 20px;">
-        <!-- Player Info -->
+        Player Info 
         <div class="player-info" style="text-align: center;">
             <img src="" alt="Player Image" id="player-img" style="width: 250px; height: 250px; border-radius: 50%;">
             <h2 id="player-name">Nombre</h2>
             <p id="player-position">Posición preferida: Defensa</p>
-            <p id="most-repeated-position"></p> <!-- Display most repeated position -->
+            <p id="most-repeated-position"></p> Display most repeated position 
         </div>
 
-        <!-- Player Stats -->
+         Player Stats
         <div class="stats-section" style="text-align: center; margin-top: 20px;">
             <h2>Estadísticas</h2>
             <p id="total-mvp">Puntos MVP: 0</p>
@@ -193,8 +276,45 @@
             <p id="average-goals"></p>
             <p id="average-assists"></p>
             <p id="average-victories"></p>
-            
 
+        -->
+    <main>
+        <div class="player-card" id="player-main">
+            <img src="" alt="Player Image" id="player-image" class="player-image">
+            <div class="player-info">
+                <div class="player-name" id="player-name">Nombre</div>
+                <div class="player-club" id="player-position">Posición preferida: Defensa</div>
+                <div class="player-club" id="most-repeated-position">Posición preferida: Defensa</div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="total-mvp">0</div>
+                        <div class="stat-label">Puntos MVP</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="total-fouls">0</div>
+                        <div class="stat-label">Faltas</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="average-goals">0</div>
+                        <div class="stat-label">Promedio Goles</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="average-assists">0</div>
+                        <div class="stat-label">Promedio Asistencias</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="average-victories">0</div>
+                        <div class="stat-label">Promedio Victorias</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="puntuacion">0</div>
+                        <div class="stat-label">Puntuacion</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-section" style="text-align: center; margin-top: 20px;">
 
         <!-- Pie Chart <div class="pie-chart-container" style="width: 200px; height: 200px; margin-bottom: 20px;">-->
       
@@ -219,11 +339,12 @@
             </div>
             <canvas id="stat-histogram"></canvas>
         </div>
+
+        </div>
         <!-- Últimos resultados -->
 
         <!-- Partidos jugados en Player Stats, Jugadores con los que más gana-->
 
-        </div>
     </main>
 
 
@@ -242,7 +363,7 @@
     <footer>
         <p>&copy; All Rights Reserved</p>
     </footer>
-
+    </div>
     <script>
         const baseId = 'app9PTtjDQsuwHyIz'; // Replace with your base ID
         const apiKey = 'patp3kkpRn8eGNX3y.db99d2833bad3cfb3ed32a4377304090f84839a464e55ffc8b1333a01cb5fdf3'; // Replace with your API key
@@ -289,7 +410,7 @@
                             // Set player details
                             document.getElementById('player-name').innerText = playerName;
                             document.getElementById('player-position').innerText = `Position: ${playerPosition}`;
-                            document.getElementById('player-img').src = playerImage;
+                            document.getElementById('player-image').src = playerImage;
 
                 // Calculate stats
                 let totalMVP = 0;
@@ -340,18 +461,19 @@
                 document.getElementById('most-repeated-position').innerText = `Posicion Preferida: ${mostRepeatedPosition}`;
 
                 // Set player stats
-                document.getElementById('total-mvp').innerText = `Puntos MVP: ${totalMVP}`;
-                document.getElementById('total-fouls').innerText = `Faltas: ${totalFouls}`;
+                document.getElementById('total-mvp').innerText = `${totalMVP}`;
+                document.getElementById('total-fouls').innerText = `${totalFouls}`;
 
                 const averageGoals = totalGoals / totalMatchesPlayed;
                 const averageAssists = totalAssists / totalMatchesPlayed;
                 const averageVictories = (totalMatchesWon / totalMatchesPlayed) * 100;  // Convert to percentage
 
 
-                // Display the averages below the profile PROMEDIO DE VICTORIAS
-                document.getElementById('average-goals').innerText = `Promedio de goles: ${averageGoals}`;
-                document.getElementById('average-assists').innerText = `Promedio de asistencias: ${averageAssists}`;
-                document.getElementById('average-victories').innerText = `Promedio de victorias: ${averageVictories.toFixed(2)}%`;  // Showing the result with two decimal points
+                // Display the averages below the profile 
+                document.getElementById('average-goals').innerText = `${averageGoals}`;
+                document.getElementById('average-assists').innerText = `${averageAssists}`;
+                document.getElementById('average-victories').innerText = `${averageVictories.toFixed(2)}%`;  // Showing the result with two decimal points
+                document.getElementById('puntuacion').innerText = `${averageVictories.toFixed(2)}%`;  // Showing the result with two decimal points
 
                 // Create Pie Chart for victories with adjusted size and color
                 const victoryData = {
@@ -384,7 +506,6 @@
 
                 // Ensure statsHistory is sorted by week (in case it isn't already)
                 statsHistory.sort((a, b) => a.week - b.week);
-
 
                 // Create Line Chart for player stats
                 const ctxHistogram = document.getElementById('stat-histogram').getContext('2d');
@@ -465,7 +586,9 @@
 
                 // Calculate overall score
                 const overallScore = calculateOverallScore([attack, defense, fairPlay]);
-                displayOverallScore(overallScore);
+                document.getElementById('puntuacion').innerText = `${overallScore}`;  // Showing the result with two decimal points
+
+//                displayOverallScore(overallScore);
 
                 // Initialize Radar Chart
                 const radarCtx = document.getElementById('radar-chart').getContext('2d');
