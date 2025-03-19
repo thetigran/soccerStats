@@ -394,21 +394,53 @@
         
             let currentData = [];
         
-            fetch(endpoint, {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${apiKey}`,
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const rows = data.records;
-        
+
+            async function fetchAllRecords() {
+                let allRecords = [];
+                let offset = null;
+
+                do {
+                    let url = `${endpoint}?pageSize=100`; // Max allowed records per request
+                    if (offset) {
+                        url += `&offset=${offset}`;
+                    }
+
+                    try {
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                Authorization: `Bearer ${apiKey}`,
+                            }
+                        });
+
+                        const data = await response.json();
+                        console.log('Raw API Response:', data); // Debugging: check response data
+
+                        if (data.records) {
+                            allRecords = allRecords.concat(data.records);
+                        }
+
+                        offset = data.offset; // If there's more data, `offset` will be provided
+                    } catch (error) {
+                        console.error('Error fetching data:', error);
+                        break;
+                    }
+                } while (offset); // Keep fetching until there's no offset
+
+                console.log('Total records fetched:', allRecords.length);
+                return allRecords;
+            }
+
+            fetchAllRecords().then(records => {
+                const playerWeeks = {};
                 const playerStats = {};
-        
-                rows.forEach(row => {
+
+                records.forEach(row => {
                     const fields = row.fields;
                     const player = fields['Jugador'];
+                    const week = fields['Semana']; 
+                    console.log('Jugador:', player, ' Semana', week);
+                    console.log('Available fields:', Object.keys(row.fields));
 
                     // Check if the player name is valid (non-empty, non-null)
                     if (!player) {
@@ -432,8 +464,10 @@
                             promedioAsistencias: 0,
                             promedioVictorias: 0
                         };
+                        playerWeeks[player] = new Set(); 
                     }
-        
+
+                    // Accumulate stats
                     playerStats[player].goles += parseInt(fields['Goles'] || 0, 10);
                     playerStats[player].asistencias += parseInt(fields['Asistencias'] || 0, 10);
                     playerStats[player].penaltisProvocados += parseInt(fields['Penaltis Provocados'] || 0, 10);
@@ -444,15 +478,29 @@
                     playerStats[player].golesPropia += parseInt(fields['Goles en Propia'] || 0, 10);
                     playerStats[player].puntosMVP += parseInt(fields['MVP'] || 0, 10);
                     playerStats[player].golesContribuidos = playerStats[player].goles + playerStats[player].asistencias;
-                    playerStats[player].promedioGoles = playerStats[player].goles / playerStats[player].partidosJugados;
-                    playerStats[player].promedioAsistencias = playerStats[player].asistencias / playerStats[player].partidosJugados;
-                    playerStats[player].promedioVictorias = playerStats[player].partidosGanados / playerStats[player].partidosJugados;
+                    console.log(`Stats for ${player}:`, playerStats[player]); // Log each player's stats
+                    
+                    // Add the week played to the set
+                    if (week) {
+                        playerWeeks[player].add(week);
+                    }
+
                 });
-        
+
+                // Recalculate averages at the end
+                Object.keys(playerStats).forEach(player => {
+                    const weeksPlayed = playerWeeks[player].size || 1; // Avoid division by 0
+                    playerStats[player].promedioGoles = (playerStats[player].goles / weeksPlayed).toFixed(1);
+                    playerStats[player].promedioAsistencias = (playerStats[player].asistencias / weeksPlayed).toFixed(1);
+                    playerStats[player].promedioVictorias = (playerStats[player].partidosGanados / weeksPlayed).toFixed(1);
+
+                });
+
                 currentData = Object.values(playerStats).sort((a, b) => a.jugador.localeCompare(b.jugador));
-                renderTable(currentData);
-            })
-            .catch(error => console.error('Error fetching data: ', error));
+                renderTable(currentData); // Assuming this is your table rendering function
+            }).catch(error => {
+                console.error('Error fetching data:', error);
+            });
         
             function renderTable(data) {
 
@@ -551,3 +599,5 @@
     </footer>
 </body>
 </html>
+
+<!--Puntos MVP, goles propia-->
