@@ -464,10 +464,9 @@
                 document.getElementById('total-mvp').innerText = `${totalMVP}`;
                 document.getElementById('total-fouls').innerText = `${totalFouls}`;
 
-                const averageGoals = totalGoals / totalMatchesPlayed;
-                const averageAssists = totalAssists / totalMatchesPlayed;
-                const averageVictories = (totalMatchesWon / totalMatchesPlayed) * 100;  // Convert to percentage
-
+                const averageGoals = (totalGoals / totalMatchesPlayed).toFixed(1);
+                const averageAssists = (totalAssists / totalMatchesPlayed).toFixed(1);
+                const averageVictories = ((totalMatchesWon / totalMatchesPlayed) * 100).toFixed(1);  // Convert to percentage
 
                 // Display the averages below the profile 
                 document.getElementById('average-goals').innerText = `${averageGoals}`;
